@@ -95,6 +95,31 @@ static PyObject* CZINT_repr(CZINT *self) {
     );
 }
 
+int parse_color(const char *str, unsigned int *target) {
+    if (str == NULL) {
+        return 0;
+    }
+    if (str[0] != '#') {
+        PyErr_Format(
+            PyExc_ValueError,
+            "Invalid color: %s. Color must be started with '#'",
+            str
+        );
+        return -1;
+    }
+
+    int res = sscanf(&str[1],"%2x%2x%2x", &target[0], &target[1], &target[2]);
+    if (res < 0) {
+        PyErr_Format(
+            PyExc_ValueError,
+            "Invalid color format. Color must be in '#ffffff'"
+        );
+        return -1;
+    }
+
+    return 0;
+}
+
 PyDoc_STRVAR(CZINT_render_bmp_docstring,
     "Render bmp.\n\n"
     "    ZBarcode('data').render_bmp(angle: int = 0) -> bytes"
@@ -102,13 +127,23 @@ PyDoc_STRVAR(CZINT_render_bmp_docstring,
 static PyObject* CZINT_render_bmp(
     CZINT *self, PyObject *args, PyObject *kwds
 ) {
-    static char *kwlist[] = {"angle", NULL};
+    static char *kwlist[] = {"angle", "fgcolor", "bgcolor", NULL};
 
     int angle = 0;
+    unsigned int fgcolor[3] = {0, 0, 0};
+    unsigned int bgcolor[3] = {255, 255, 255};
+
+    char *fgcolor_str = NULL;
+    char *bgcolor_str = NULL;
+
+
     if (!PyArg_ParseTupleAndKeywords(
-        args, kwds, "|i", kwlist,
-        &angle
+        args, kwds, "|iss", kwlist,
+        &angle, &fgcolor_str, &bgcolor_str
     )) return NULL;
+
+    if (parse_color(fgcolor_str, &fgcolor)) return NULL;
+    if (parse_color(bgcolor_str, &bgcolor)) return NULL;
 
     int res = 0;
     unsigned int bmp_size = 0;
@@ -183,6 +218,14 @@ static PyObject* CZINT_render_bmp(
         bmp[23] = (unsigned char)(be_value >> 16);
         bmp[22] = (unsigned char)(be_value >> 24);
 
+        bmp[54] = (unsigned char)fgcolor[0];
+        bmp[55] = (unsigned char)fgcolor[1];
+        bmp[56] = (unsigned char)fgcolor[2];
+
+        bmp[58] = (unsigned char)bgcolor[0];
+        bmp[59] = (unsigned char)bgcolor[1];
+        bmp[60] = (unsigned char)bgcolor[2];
+
         char *pixels = &bmp[header_size];
 
         unsigned char point;
@@ -216,6 +259,49 @@ static PyObject* CZINT_render_bmp(
     return result;
 }
 
+PyDoc_STRVAR(CZINT_render_svg_docstring,
+    "Render bmp.\n\n"
+    "    ZBarcode('data').render_svg(angle: int = 0) -> bytes"
+);
+static PyObject* CZINT_render_svg(
+    CZINT *self, PyObject *args, PyObject *kwds
+) {
+    static char *kwlist[] = {"angle", NULL};
+
+    int angle = 0;
+    if (!PyArg_ParseTupleAndKeywords(
+        args, kwds, "|i", kwlist,
+        &angle
+    )) return NULL;
+
+    int res = 0;
+    unsigned int size = 0;
+    char *bmp = NULL;
+    int bmp_1bit_size = 0;
+    Py_BEGIN_ALLOW_THREADS
+
+    res = ZBarcode_Encode_and_Buffer_Vector(self->symbol, (unsigned char *)self->buffer, self->length, angle);
+
+
+    Py_END_ALLOW_THREADS
+
+    if (res > 0) {
+        PyErr_Format(
+            PyExc_RuntimeError,
+            "Error while rendering: %s",
+            self->symbol->errtxt
+        );
+        return NULL;
+    }
+    PyObject *result = PyBytes_FromStringAndSize(bmp, bmp_1bit_size);
+    if (result == NULL) {
+        free(bmp);
+        return NULL;
+    }
+    free(bmp);
+    return result;
+}
+
 
 static PyMethodDef CZINT_methods[] = {
     {
@@ -223,12 +309,13 @@ static PyMethodDef CZINT_methods[] = {
         (PyCFunction) CZINT_render_bmp, METH_VARARGS | METH_KEYWORDS,
         CZINT_render_bmp_docstring
     },
+    {
+        "render_svg",
+        (PyCFunction) CZINT_render_svg, METH_VARARGS | METH_KEYWORDS,
+        CZINT_render_svg_docstring
+    },
     {NULL}  /* Sentinel */
-//    {
-//        "render_svg",
-//        (PyCFunction) CZINT_render_svg, METH_VARARGS | METH_KEYWORDS,
-//        CZINT_render_svg_docstring
-//    }
+
 };
 
 
