@@ -58,7 +58,6 @@ setup(
             ],
             extra_compile_args=["-g"],
             include_dirs=["cyzint/src"],
-            libraries=["png"],
             define_macros=[("NO_PNG", "1")]
         ),
     ],

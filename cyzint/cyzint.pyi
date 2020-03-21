@@ -1,4 +1,5 @@
 from enum import IntEnum
+from typing import Union
 
 
 class BarcodeTypes(IntEnum):
@@ -113,11 +114,12 @@ class BarcodeTypes(IntEnum):
 class ZBarcode:
     def __init__(
         self,
+        text: Union[str, bytes],
         barcode_type: BarcodeTypes,
         scale: float = 1.0,
         show_text: bool = True
     ): ...
 
-    def create_raster(self, text: str): ...
+    def render_bmp(self, angle: int = 0): ...
 
-    def create_vector(self, text: str): ...
+    def render_svg(self, angle: int = 0): ...

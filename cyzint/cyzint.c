@@ -55,7 +55,7 @@ CZINT_init(CZINT *self, PyObject *args, PyObject *kwds)
             return -1;
         }
     } else if (PyUnicode_Check(self->data)) {
-        self->buffer = PyUnicode_AsUTF8AndSize(self->data, &self->length);
+        self->buffer = PyUnicode_AsUTF8AndSize((const char *)self->data, &self->length);
         if (self->buffer == NULL) {
             return -1;
         }
@@ -79,11 +79,11 @@ static PyObject* CZINT_repr(CZINT *self) {
     );
 }
 
-PyDoc_STRVAR(CZINT_render_png_docstring,
+PyDoc_STRVAR(CZINT_render_bmp_docstring,
     "Render bmp.\n\n"
-    "    ZBarcode('data').render_bmp() -> bytes"
+    "    ZBarcode('data').render_bmp(angle: int = 0) -> bytes"
 );
-static PyObject* CZINT_render_png(
+static PyObject* CZINT_render_bmp(
     CZINT *self, PyObject *args, PyObject *kwds
 ) {
     static char *kwlist[] = {"angle", NULL};
@@ -102,62 +102,66 @@ static PyObject* CZINT_render_png(
 
     res = ZBarcode_Encode_and_Buffer(self->symbol, (unsigned char *)self->buffer, self->length, angle);
 
-
-
-    printf("%d:%d\n", self->symbol->bitmap_width, self->symbol->bitmap_height);
-    unsigned int width = self->symbol->bitmap_width = 200;
-    unsigned int height = self->symbol->bitmap_height = 40;
+    unsigned int width = self->symbol->bitmap_width;
+    unsigned int height = self->symbol->bitmap_height;
     unsigned int bitmap_size = width * height * 3;
-    size = bitmap_size + 138;
+    size = bitmap_size + 54;
 
-    printf("%d:%d\n", size, bitmap_size);
-    printf("%d\n", res);
-
-    static const unsigned char bmp_template[] = {
-      0x42, 0x4d, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x8a, 0x00,
-      0x00, 0x00, 0x7c, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-      0x00, 0x00, 0x01, 0x00, 0x20, 0x00, 0x03, 0x00, 0x00, 0x00, 0x24, 0x00,
-      0x00, 0x00, 0x25, 0x16, 0x00, 0x00, 0x25, 0x16, 0x00, 0x00, 0x00, 0x00,
-      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0x00, 0x00, 0xff,
-      0x00, 0x00, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0x42, 0x47,
-      0x52, 0x73, 0x80, 0xc2, 0xf5, 0x28, 0x60, 0xb8, 0x1e, 0x15, 0x20, 0x85,
-      0xeb, 0x01, 0x40, 0x33, 0x33, 0x13, 0x80, 0x66, 0x66, 0x26, 0x40, 0x66,
-      0x66, 0x06, 0xa0, 0x99, 0x99, 0x09, 0x3c, 0x0a, 0xd7, 0x03, 0x24, 0x5c,
-      0x8f, 0x32, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-      0x00, 0x00, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-      0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    static const unsigned char bmp_template[54] = {
+      0x42, 0x4d,
+      0x00, 0x00, 0x00, 0x00, // size
+      0x00, 0x00, 0x00, 0x00, // padding (zero)
+      0x36, 0x00, 0x00, 0x00, // 54
+      0x28, 0x00, 0x00, 0x00, // 40
+      0x00, 0x00, 0x00, 0x00, // width
+      0x00, 0x00, 0x00, 0x00, // height
+      0x01, 0x00, 0x18, 0x00,
+      0x00, 0x00, 0x00, 0x00,
+      0x00, 0x00, 0x00, 0x00,
+      0x00, 0x00, 0x00, 0x00,
+      0x00, 0x00, 0x00, 0x00,
+      0x00, 0x00, 0x00, 0x00,
+      0x00, 0x00, 0x00, 0x00,
     };
 
 
     if (res == 0) {
-        int padding = (4 - (width % 4));
+        int padding = ((4 - (width * 3) % 4) % 4);
         printf("%d\n", padding);
-        bmp = calloc(size + padding*height, sizeof(char *));
+        bmp = calloc(size + padding*height*3, sizeof(char *));
 
-        memcpy(bmp, &bmp_template, 138);
+        memcpy(bmp, &bmp_template, 54);
 
         bmp[2] = (unsigned char)(size);
         bmp[3] = (unsigned char)(size >> 8);
         bmp[4] = (unsigned char)(size >> 16);
         bmp[5] = (unsigned char)(size >> 24);
 
-        bmp[19] = (unsigned char)(width);
-        bmp[20] = (unsigned char)(width >> 8);
-        bmp[21] = (unsigned char)(width >> 16);
-        bmp[22] = (unsigned char)(width >> 24);
+        bmp[18] = (unsigned char)(width);
+        bmp[19] = (unsigned char)(width >> 8);
+        bmp[20] = (unsigned char)(width >> 16);
+        bmp[21] = (unsigned char)(width >> 24);
 
-        bmp[23] = (unsigned char)(height);
-        bmp[24] = (unsigned char)(height >> 8);
-        bmp[25] = (unsigned char)(height >> 16);
-        bmp[26] = (unsigned char)(height >> 24);
+        bmp[22] = (unsigned char)(height);
+        bmp[23] = (unsigned char)(height >> 8);
+        bmp[24] = (unsigned char)(height >> 16);
+        bmp[25] = (unsigned char)(height >> 24);
 
-        char *pixels = &bmp[138];
-        memset(pixels, 0xff, bitmap_size);
+        char *pixels = &bmp[54];
+        const unsigned char bmp_pad[3] = { 0, 0, 0 };
+        unsigned char pixel[3];
 
+        unsigned int point;
+        unsigned int offset = 0;
+        for (int y = (height - 1); y != -1; y--) {
+            point = (y * width) * 3;
+            memcpy(&pixels[offset], &self->symbol->bitmap[point], sizeof(pixel) * width);
+            offset += sizeof(pixel) * width;
 
-        for (unsigned int i=0; i<height; i++) {
-            printf("%d:%d:%d\n", i * (width + padding), width, padding);
-            memcpy(&pixels[i * (width + padding)], &self->symbol->bitmap[i * width], width);
+            if (padding > 0) {
+                memcpy(&pixels[offset + 1], &bmp_pad[padding], padding);
+                offset += padding;
+            }
         }
     }
 
@@ -180,9 +184,9 @@ static PyObject* CZINT_render_png(
 
 static PyMethodDef CZINT_methods[] = {
     {
-        "render_png",
-        (PyCFunction) CZINT_render_png, METH_VARARGS | METH_KEYWORDS,
-        CZINT_render_png_docstring
+        "render_bmp",
+        (PyCFunction) CZINT_render_bmp, METH_VARARGS | METH_KEYWORDS,
+        CZINT_render_bmp_docstring
     },
     {NULL}  /* Sentinel */
 //    {
