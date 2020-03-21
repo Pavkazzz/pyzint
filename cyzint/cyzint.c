@@ -101,36 +101,48 @@ static PyObject* CZINT_render_bmp(
     Py_BEGIN_ALLOW_THREADS
 
     res = ZBarcode_Encode_and_Buffer(self->symbol, (unsigned char *)self->buffer, self->length, angle);
+///////////// 14x5
+    char ch[] = {
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    };
+    self->symbol->bitmap = ch;
+////////////
+    unsigned int width = self->symbol->bitmap_width = 14;
+    unsigned int height = self->symbol->bitmap_height = 5;
+    unsigned int bitmap_size = width * height;
+    printf("bsize: %s\n", bitmap_size);
+    size = bitmap_size + 62;
 
-    unsigned int width = self->symbol->bitmap_width;
-    unsigned int height = self->symbol->bitmap_height;
-    unsigned int bitmap_size = width * height * 3;
-    size = bitmap_size + 54;
-
-    static const unsigned char bmp_template[54] = {
+    static const unsigned char bmp_template[62] = {
       0x42, 0x4d,
       0x00, 0x00, 0x00, 0x00, // size
       0x00, 0x00, 0x00, 0x00, // padding (zero)
-      0x36, 0x00, 0x00, 0x00, // 54
+      0x3e, 0x00, 0x00, 0x00, // 62
       0x28, 0x00, 0x00, 0x00, // 40
       0x00, 0x00, 0x00, 0x00, // width
       0x00, 0x00, 0x00, 0x00, // height
-      0x01, 0x00, 0x18, 0x00,
-      0x00, 0x00, 0x00, 0x00,
-      0x00, 0x00, 0x00, 0x00,
-      0x00, 0x00, 0x00, 0x00,
-      0x00, 0x00, 0x00, 0x00,
-      0x00, 0x00, 0x00, 0x00,
-      0x00, 0x00, 0x00, 0x00,
+      0x01, 0x00, 0x01, 0x00, // planes and bpp
+      0x00, 0x00, 0x00, 0x00, // compression
+      0x00, 0x00, 0x00, 0x00, // size
+      0xc4, 0x0e, 0x00, 0x00, // x pxls per meter
+      0xc4, 0x0e, 0x00, 0x00, // y pxls per meter
+      0x02, 0x00, 0x00, 0x00, // colors in table
+      0x02, 0x00, 0x00, 0x00, // important color in table
+      0x00, 0x00, 0x00, 0x00, // red channel
+      0xff, 0xff, 0xff, 0xff  // green channel
     };
 
 
     if (res == 0) {
-        int padding = ((4 - (width * 3) % 4) % 4);
-        printf("%d\n", padding);
-        bmp = calloc(size + padding*height*3, sizeof(char *));
+        bmp = calloc(size, sizeof(char *));
 
-        memcpy(bmp, &bmp_template, 54);
+        memcpy(bmp, &bmp_template, 62);
 
         bmp[2] = (unsigned char)(size);
         bmp[3] = (unsigned char)(size >> 8);
@@ -147,22 +159,24 @@ static PyObject* CZINT_render_bmp(
         bmp[24] = (unsigned char)(height >> 16);
         bmp[25] = (unsigned char)(height >> 24);
 
-        char *pixels = &bmp[54];
-        const unsigned char bmp_pad[3] = { 0, 0, 0 };
-        unsigned char pixel[3];
+        char *pixels = &bmp[62];
 
         unsigned int point;
         unsigned int offset = 0;
-        for (int y = (height - 1); y != -1; y--) {
-            point = (y * width) * 3;
-            memcpy(&pixels[offset], &self->symbol->bitmap[point], sizeof(pixel) * width);
-            offset += sizeof(pixel) * width;
 
-            if (padding > 0) {
-                memcpy(&pixels[offset + 1], &bmp_pad[padding], padding);
-                offset += padding;
-            }
-        }
+//        for(int y=height - 1; y >= 0; y--)
+//        {
+//            for(int x=0; x < width; x++)
+//            {
+//                point = self->symbol->bitmap[y*width+x];
+//                printf("b: %s\n", point);
+//                if (point > 128)
+//                {
+//                    pixels[offset/8] |= (1 << (7 -(offset % 8)));
+//                }
+//                offset++;
+//            }
+//        }
     }
 
     Py_END_ALLOW_THREADS
