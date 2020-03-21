@@ -1,0 +1,3 @@
+[submodule "cyzint/src/zint"]
+	path = cyzint/src/zint
+	url = git@github.com:Pavkazzz/zint.git
