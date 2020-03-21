@@ -140,14 +140,23 @@ static PyObject* CZINT_render_bmp(
     unsigned int height = self->symbol->bitmap_height;
     const unsigned int bitmap_channel_size = width * height;
     const unsigned int bitmap_size = bitmap_channel_size * 3;
-    printf("%d, %d, %d, %d\n", self->symbol->bitmap_width, self->symbol->bitmap_height, bitmap_channel_size, bitmap_size);
-    unsigned char bitmap[height][width];
+
+    printf(
+        "%d, %d, %d, %d\n",
+        self->symbol->bitmap_width,
+        self->symbol->bitmap_height,
+        bitmap_channel_size,
+        bitmap_size
+    );
+
+    unsigned char bitmap[height][width + 8];
 
     for (int i=0; i<height*width; i++) {
         bitmap[i/width][i%width] = self->symbol->bitmap[i * 3];
     }
 
     static const unsigned int header_size = 62;
+    const int bmp_1bit_offset = (width % 8 == 0?0:1);
     const int bmp_1bit_with_bytes = (width / 8 + (width % 8 == 0?0:1));
     const int padding = ((4 - (width * 3) % 4) % 4);
     bmp_1bit_size = (
