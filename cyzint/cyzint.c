@@ -204,7 +204,7 @@ static PyObject* CZINT_render_bmp(
         unsigned int offset = 0;
 
         printf("start loop. height=%d, width=%d\n", height, width);
-        for(int y=height - 1; y >= 0; y--) {
+        for(int y=height; y > 0; --y) {
             for(int x=0; x < width; x++) {
                 pixels[offset] = octet2char(...)
 
