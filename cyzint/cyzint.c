@@ -116,54 +116,30 @@ static PyObject* CZINT_render_bmp(
     int bmp_1bit_size = 0;
     Py_BEGIN_ALLOW_THREADS
 
-    printf("begin\n");
-
     res = ZBarcode_Encode_and_Buffer(
         self->symbol,
         (unsigned char *)self->buffer,
         self->length, angle
     );
 
-///////////// 14x5
-//    char ch[] = {
-//        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-//        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-//        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-//        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-//        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-//        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-//        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-//    };
-//    self->symbol->bitmap = ch;
-////////////
     unsigned int width = self->symbol->bitmap_width;
     unsigned int height = self->symbol->bitmap_height;
     const unsigned int bitmap_channel_size = width * height;
     const unsigned int bitmap_size = bitmap_channel_size * 3;
 
-    printf(
-        "%d, %d, %d, %d\n",
-        self->symbol->bitmap_width,
-        self->symbol->bitmap_height,
-        bitmap_channel_size,
-        bitmap_size
-    );
-
     unsigned char bitmap[height][width + 8];
+    memset(&bitmap, 0, height * (width + 8));
 
     for (int i=0; i<height*width; i++) {
         bitmap[i/width][i%width] = self->symbol->bitmap[i * 3];
     }
 
     static const unsigned int header_size = 62;
-    const int bmp_1bit_offset = (width % 8 == 0?0:1);
     const int bmp_1bit_with_bytes = (width / 8 + (width % 8 == 0?0:1));
     const int padding = ((4 - (width * 3) % 4) % 4);
     bmp_1bit_size = (
         header_size + bmp_1bit_with_bytes * height + (height * padding)
     );
-
-    printf("bmp_1bit_with_bytes=%d, pad=%d, bmp_1bit_size=%d\n", bmp_1bit_with_bytes, padding, bmp_1bit_size);
 
     static const unsigned char bmp_template[header_size] = {
       0x42, 0x4d,
@@ -212,16 +188,12 @@ static PyObject* CZINT_render_bmp(
         unsigned char point;
         unsigned int offset = 0;
 
-        printf("start loop. height=%d, width=%d\n", height, width);
-        for(int y=height; y > 0; --y) {
-            for(int x=0; x < width; x++) {
-                pixels[offset] = octet2char(...)
-
+        for(unsigned int y=height-1; y > 0; --y) {
+            for(unsigned int x=0; x < width; x+=8) {
+                pixels[offset] = octet2char(&bitmap[y][x]);
                 offset++;
             }
             offset += padding;
-            printf("\n");
-            "10101010101010"
         }
     }
 
@@ -235,16 +207,12 @@ static PyObject* CZINT_render_bmp(
         );
         return NULL;
     }
-    printf("result\n");
     PyObject *result = PyBytes_FromStringAndSize(bmp, bmp_1bit_size);
     if (result == NULL) {
-        printf("error after result\n");
         free(bmp);
         return NULL;
     }
-    printf("after result\n");
     free(bmp);
-    printf("after free\n");
     return result;
 }
 
