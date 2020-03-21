@@ -1,4 +1,5 @@
 #include <Python.h>
+#include "endianness.h"
 #include "src/zint/backend/zint.h"
 
 typedef struct {
@@ -95,31 +96,50 @@ static PyObject* CZINT_render_bmp(
     )) return NULL;
 
     int res = 0;
-    unsigned int size = 0;
+    unsigned int bmp_size = 0;
     char *bmp = NULL;
 
     Py_BEGIN_ALLOW_THREADS
 
-    res = ZBarcode_Encode_and_Buffer(self->symbol, (unsigned char *)self->buffer, self->length, angle);
+    res = ZBarcode_Encode_and_Buffer(
+        self->symbol,
+        (unsigned char *)self->buffer,
+        self->length, angle
+    );
+
 ///////////// 14x5
-    char ch[] = {
-        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-    };
-    self->symbol->bitmap = ch;
+//    char ch[] = {
+//        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+//        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+//        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+//        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+//        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+//        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+//        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+//    };
+//    self->symbol->bitmap = ch;
 ////////////
     unsigned int width = self->symbol->bitmap_width = 14;
     unsigned int height = self->symbol->bitmap_height = 5;
-    unsigned int bitmap_size = width * height;
-    printf("bsize: %s\n", bitmap_size);
-    size = bitmap_size + 62;
+    const unsigned int bitmap_channel_size = width * height;
+    const unsigned int bitmap_size = bitmap_channel_size * 3;
 
-    static const unsigned char bmp_template[62] = {
+    unsigned char bitmap[height][width];
+
+    for (int i=0; i<height; i++) {
+        for (int j=0; j<width; j++) {
+            bitmap[i][j] = self->symbol->bitmap[i * j * 3];
+        }
+    }
+
+    static const unsigned int header_size = 62;
+    const int bmp_1bit_with_bytes = (width / 8 + (width % 8 == 0?0:1));
+    const int padding = ((4 - (width * 3) % 4) % 4);
+    const int bmp_1bit_size = (
+        header_size + bmp_1bit_size * height + (height * padding)
+    );
+
+    static const unsigned char bmp_template[header_size] = {
       0x42, 0x4d,
       0x00, 0x00, 0x00, 0x00, // size
       0x00, 0x00, 0x00, 0x00, // padding (zero)
@@ -140,43 +160,46 @@ static PyObject* CZINT_render_bmp(
 
 
     if (res == 0) {
-        bmp = calloc(size, sizeof(char *));
+        bmp = calloc(bmp_1bit_size, sizeof(char *));
 
         memcpy(bmp, &bmp_template, 62);
 
-        bmp[2] = (unsigned char)(size);
-        bmp[3] = (unsigned char)(size >> 8);
-        bmp[4] = (unsigned char)(size >> 16);
-        bmp[5] = (unsigned char)(size >> 24);
+        unsigned int be_value = hton32(size);
+        bmp[2] = (unsigned char)(be_value);
+        bmp[3] = (unsigned char)(be_value >> 8);
+        bmp[4] = (unsigned char)(be_value >> 16);
+        bmp[5] = (unsigned char)(be_value >> 24);
 
-        bmp[18] = (unsigned char)(width);
-        bmp[19] = (unsigned char)(width >> 8);
-        bmp[20] = (unsigned char)(width >> 16);
-        bmp[21] = (unsigned char)(width >> 24);
+        be_value = hton32(width);
+        bmp[18] = (unsigned char)(be_value);
+        bmp[19] = (unsigned char)(be_value >> 8);
+        bmp[20] = (unsigned char)(be_value >> 16);
+        bmp[21] = (unsigned char)(be_value >> 24);
 
-        bmp[22] = (unsigned char)(height);
-        bmp[23] = (unsigned char)(height >> 8);
-        bmp[24] = (unsigned char)(height >> 16);
-        bmp[25] = (unsigned char)(height >> 24);
+        be_value = hton32(height);
+        bmp[22] = (unsigned char)(be_value);
+        bmp[23] = (unsigned char)(be_value >> 8);
+        bmp[24] = (unsigned char)(be_value >> 16);
+        bmp[25] = (unsigned char)(be_value >> 24);
 
         char *pixels = &bmp[62];
 
         unsigned int point;
         unsigned int offset = 0;
 
-//        for(int y=height - 1; y >= 0; y--)
-//        {
-//            for(int x=0; x < width; x++)
-//            {
-//                point = self->symbol->bitmap[y*width+x];
-//                printf("b: %s\n", point);
-//                if (point > 128)
-//                {
-//                    pixels[offset/8] |= (1 << (7 -(offset % 8)));
-//                }
-//                offset++;
-//            }
-//        }
+        for(int y=height - 1; y >= 0; y--)
+        {
+            for(int x=0; x < width; x++)
+            {
+                point = self->symbol->bitmap[y*width+x];
+                printf("b: %s\n", point);
+                if (point > 128)
+                {
+                    pixels[offset/8] |= (1 << (7 -(offset % 8)));
+                }
+                offset++;
+            }
+        }
     }
 
     Py_END_ALLOW_THREADS
