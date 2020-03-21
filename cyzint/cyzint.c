@@ -1,4 +1,5 @@
 #include <Python.h>
+#include "endianness.h"
 #include "src/zint/backend/zint.h"
 
 typedef struct {
@@ -28,6 +29,21 @@ CZINT_dealloc(CZINT *self) {
     self->buffer = NULL;
 
     Py_TYPE(self)->tp_free((PyObject *) self);
+}
+
+uint8_t octet2char(const char* src) {
+    unsigned char result = 0;
+    unsigned char t;
+
+    result |= (src[0]?1:0) << 7;
+    result |= (src[1]?1:0) << 6;
+    result |= (src[2]?1:0) << 5;
+    result |= (src[3]?1:0) << 4;
+    result |= (src[4]?1:0) << 3;
+    result |= (src[5]?1:0) << 2;
+    result |= (src[6]?1:0) << 1;
+    result |= (src[7]?1:0);
+    return result;
 }
 
 static int
@@ -95,73 +111,89 @@ static PyObject* CZINT_render_bmp(
     )) return NULL;
 
     int res = 0;
-    unsigned int size = 0;
+    unsigned int bmp_size = 0;
     char *bmp = NULL;
-
+    int bmp_1bit_size = 0;
     Py_BEGIN_ALLOW_THREADS
 
-    res = ZBarcode_Encode_and_Buffer(self->symbol, (unsigned char *)self->buffer, self->length, angle);
+    res = ZBarcode_Encode_and_Buffer(
+        self->symbol,
+        (unsigned char *)self->buffer,
+        self->length, angle
+    );
 
     unsigned int width = self->symbol->bitmap_width;
     unsigned int height = self->symbol->bitmap_height;
-    unsigned int bitmap_size = width * height * 3;
-    size = bitmap_size + 54;
+    const unsigned int bitmap_channel_size = width * height;
+    const unsigned int bitmap_size = bitmap_channel_size * 3;
 
-    static const unsigned char bmp_template[54] = {
+    unsigned char bitmap[height][width + 8];
+    memset(&bitmap, 0, height * (width + 8));
+
+    for (int i=0; i<height*width; i++) {
+        bitmap[i/width][i%width] = self->symbol->bitmap[i * 3];
+    }
+
+    static const unsigned int header_size = 62;
+    const int bmp_1bit_with_bytes = (width / 8 + (width % 8 == 0?0:1));
+    const int padding = ((4 - (width * 3) % 4) % 4);
+    bmp_1bit_size = (
+        header_size + bmp_1bit_with_bytes * height + (height * padding)
+    );
+
+    static const unsigned char bmp_template[header_size] = {
       0x42, 0x4d,
       0x00, 0x00, 0x00, 0x00, // size
       0x00, 0x00, 0x00, 0x00, // padding (zero)
-      0x36, 0x00, 0x00, 0x00, // 54
+      0x3e, 0x00, 0x00, 0x00, // 62
       0x28, 0x00, 0x00, 0x00, // 40
       0x00, 0x00, 0x00, 0x00, // width
       0x00, 0x00, 0x00, 0x00, // height
-      0x01, 0x00, 0x18, 0x00,
-      0x00, 0x00, 0x00, 0x00,
-      0x00, 0x00, 0x00, 0x00,
-      0x00, 0x00, 0x00, 0x00,
-      0x00, 0x00, 0x00, 0x00,
-      0x00, 0x00, 0x00, 0x00,
-      0x00, 0x00, 0x00, 0x00,
+      0x01, 0x00, 0x01, 0x00, // planes and bpp
+      0x00, 0x00, 0x00, 0x00, // compression
+      0x00, 0x00, 0x00, 0x00, // size
+      0xc4, 0x0e, 0x00, 0x00, // x pxls per meter
+      0xc4, 0x0e, 0x00, 0x00, // y pxls per meter
+      0x02, 0x00, 0x00, 0x00, // colors in table
+      0x02, 0x00, 0x00, 0x00, // important color in table
+      0x00, 0x00, 0x00, 0x00, // red channel
+      0xff, 0xff, 0xff, 0xff  // green channel
     };
 
-
     if (res == 0) {
-        int padding = ((4 - (width * 3) % 4) % 4);
-        printf("%d\n", padding);
-        bmp = calloc(size + padding*height*3, sizeof(char *));
+        bmp = calloc(bmp_1bit_size, sizeof(char *));
 
-        memcpy(bmp, &bmp_template, 54);
+        memcpy(bmp, &bmp_template, header_size);
 
-        bmp[2] = (unsigned char)(size);
-        bmp[3] = (unsigned char)(size >> 8);
-        bmp[4] = (unsigned char)(size >> 16);
-        bmp[5] = (unsigned char)(size >> 24);
+        unsigned int be_value = hton32(bmp_1bit_size);
+        bmp[5] = (unsigned char)(be_value);
+        bmp[4] = (unsigned char)(be_value >> 8);
+        bmp[3] = (unsigned char)(be_value >> 16);
+        bmp[2] = (unsigned char)(be_value >> 24);
 
-        bmp[18] = (unsigned char)(width);
-        bmp[19] = (unsigned char)(width >> 8);
-        bmp[20] = (unsigned char)(width >> 16);
-        bmp[21] = (unsigned char)(width >> 24);
+        be_value = hton32(width);
+        bmp[21] = (unsigned char)(be_value);
+        bmp[20] = (unsigned char)(be_value >> 8);
+        bmp[19] = (unsigned char)(be_value >> 16);
+        bmp[18] = (unsigned char)(be_value >> 24);
 
-        bmp[22] = (unsigned char)(height);
-        bmp[23] = (unsigned char)(height >> 8);
-        bmp[24] = (unsigned char)(height >> 16);
-        bmp[25] = (unsigned char)(height >> 24);
+        be_value = hton32(height);
+        bmp[25] = (unsigned char)(be_value);
+        bmp[24] = (unsigned char)(be_value >> 8);
+        bmp[23] = (unsigned char)(be_value >> 16);
+        bmp[22] = (unsigned char)(be_value >> 24);
 
-        char *pixels = &bmp[54];
-        const unsigned char bmp_pad[3] = { 0, 0, 0 };
-        unsigned char pixel[3];
+        char *pixels = &bmp[header_size];
 
-        unsigned int point;
+        unsigned char point;
         unsigned int offset = 0;
-        for (int y = (height - 1); y != -1; y--) {
-            point = (y * width) * 3;
-            memcpy(&pixels[offset], &self->symbol->bitmap[point], sizeof(pixel) * width);
-            offset += sizeof(pixel) * width;
 
-            if (padding > 0) {
-                memcpy(&pixels[offset + 1], &bmp_pad[padding], padding);
-                offset += padding;
+        for(unsigned int y=height-1; y > 0; --y) {
+            for(unsigned int x=0; x < width; x+=8) {
+                pixels[offset] = octet2char(&bitmap[y][x]);
+                offset++;
             }
+            offset += padding;
         }
     }
 
@@ -175,8 +207,11 @@ static PyObject* CZINT_render_bmp(
         );
         return NULL;
     }
-
-    PyObject *result = PyBytes_FromStringAndSize(bmp, size);
+    PyObject *result = PyBytes_FromStringAndSize(bmp, bmp_1bit_size);
+    if (result == NULL) {
+        free(bmp);
+        return NULL;
+    }
     free(bmp);
     return result;
 }
