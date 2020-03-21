@@ -31,6 +31,21 @@ CZINT_dealloc(CZINT *self) {
     Py_TYPE(self)->tp_free((PyObject *) self);
 }
 
+uint8_t octet2char(const char* src) {
+    unsigned char result = 0;
+    unsigned char t;
+
+    result |= (src[0]?1:0) << 7;
+    result |= (src[1]?1:0) << 6;
+    result |= (src[2]?1:0) << 5;
+    result |= (src[3]?1:0) << 4;
+    result |= (src[4]?1:0) << 3;
+    result |= (src[5]?1:0) << 2;
+    result |= (src[6]?1:0) << 1;
+    result |= (src[7]?1:0);
+    return result;
+}
+
 static int
 CZINT_init(CZINT *self, PyObject *args, PyObject *kwds)
 {
@@ -191,11 +206,7 @@ static PyObject* CZINT_render_bmp(
         printf("start loop. height=%d, width=%d\n", height, width);
         for(int y=height - 1; y >= 0; y--) {
             for(int x=0; x < width; x++) {
-                printf("%d", bitmap[y][x] ? 1 : 0);
-
-                for (int j=0; j<8 || j < width % 8; j++) {
-                    
-                }
+                pixels[offset] = octet2char(...)
 
                 offset++;
             }
