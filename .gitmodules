@@ -1,3 +1,0 @@
-[submodule "zint"]
-	path = src/zint
-	url = git@github.com:Pavkazzz/zint.git
