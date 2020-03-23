@@ -455,7 +455,7 @@ static PyObject* CZINT_render_bmp(
     unsigned int offset = 0;
 
     static const unsigned int header_size = 62;
-    static const unsigned char bmp_template[header_size] = {
+    static const unsigned char bmp_template[] = {
         0x42, 0x4d,
         0x00, 0x00, 0x00, 0x00, // size
         0x00, 0x00, 0x00, 0x00, // padding (zero)
@@ -501,8 +501,11 @@ static PyObject* CZINT_render_bmp(
     unsigned char bitmap[height][width + 8];
     memset(&bitmap, 0, height * (width + 8));
 
-    for (unsigned int i=0; i<height*width; i++) {
-        bitmap[i/width][i%width] = symbol->bitmap[i * 3];
+    {
+        unsigned int length = height * width;
+        for(unsigned int i=0; i<length; i++) {
+            bitmap[i/width][i%width] = symbol->bitmap[i * 3];
+        }
     }
 
     const int bmp_1bit_with_bytes = (width / 8 + (width % 8 == 0?0:1));
@@ -544,12 +547,15 @@ static PyObject* CZINT_render_bmp(
 
         char *pixels = &bmp[header_size];
 
-        for(unsigned int y=height-1; y > 0; --y) {
-            for(unsigned int x=0; x < width; x+=8) {
-                pixels[offset] = octet2char(&bitmap[y][x]);
-                offset++;
+        {
+            unsigned int y, x;
+            for(y=height-1; y > 0; --y) {
+                for(x=0; x < width; x+=8) {
+                    pixels[offset] = octet2char(&bitmap[y][x]);
+                    offset++;
+                }
+                offset += padding;
             }
-            offset += padding;
         }
     }
 
@@ -625,15 +631,19 @@ static PyObject* CZINT_render_svg(
     res = ZBarcode_Encode_and_Buffer_Vector(symbol, (unsigned char *)self->buffer, self->length, angle);
 
     int html_len = strlen((char *)symbol->text) + 1;
-    for (unsigned int i = 0; i < strlen((char *)symbol->text); i++) {
-        switch(symbol->text[i]) {
-            case '>':
-            case '<':
-            case '"':
-            case '&':
-            case '\'':
-                html_len += 6;
-                break;
+
+    {
+        unsigned int text_length = strlen((char *)symbol->text);
+        for(unsigned int i = 0; i < text_length; i++) {
+            switch(symbol->text[i]) {
+                case '>':
+                case '<':
+                case '"':
+                case '&':
+                case '\'':
+                    html_len += 6;
+                    break;
+            }
         }
     }
     char html_string[html_len];
