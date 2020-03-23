@@ -452,6 +452,27 @@ static PyObject* CZINT_render_bmp(
     int res = 0;
     char *bmp = NULL;
     int bmp_1bit_size = 0;
+    unsigned int offset = 0;
+
+    static const unsigned int header_size = 62;
+    static const unsigned char bmp_template[header_size] = {
+        0x42, 0x4d,
+        0x00, 0x00, 0x00, 0x00, // size
+        0x00, 0x00, 0x00, 0x00, // padding (zero)
+        0x3e, 0x00, 0x00, 0x00, // 62
+        0x28, 0x00, 0x00, 0x00, // 40
+        0x00, 0x00, 0x00, 0x00, // width
+        0x00, 0x00, 0x00, 0x00, // height
+        0x01, 0x00, 0x01, 0x00, // planes and bpp
+        0x00, 0x00, 0x00, 0x00, // compression
+        0x00, 0x00, 0x00, 0x00, // size
+        0xc4, 0x0e, 0x00, 0x00, // x pxls per meter
+        0xc4, 0x0e, 0x00, 0x00, // y pxls per meter
+        0x02, 0x00, 0x00, 0x00, // colors in table
+        0x02, 0x00, 0x00, 0x00, // important color in table
+        0x00, 0x00, 0x00, 0x00, // red channel - fgcolor
+        0xff, 0xff, 0xff, 0xff  // green channel - bgcolor
+    };
 
     struct zint_symbol *symbol = ZBarcode_Create();
 
@@ -484,34 +505,14 @@ static PyObject* CZINT_render_bmp(
         bitmap[i/width][i%width] = symbol->bitmap[i * 3];
     }
 
-    static const unsigned int header_size = 62;
     const int bmp_1bit_with_bytes = (width / 8 + (width % 8 == 0?0:1));
     const int padding = ((4 - (width * 3) % 4) % 4);
     bmp_1bit_size = (
         header_size + bmp_1bit_with_bytes * height + (height * padding)
     );
 
-    static const unsigned char bmp_template[header_size] = {
-      0x42, 0x4d,
-      0x00, 0x00, 0x00, 0x00, // size
-      0x00, 0x00, 0x00, 0x00, // padding (zero)
-      0x3e, 0x00, 0x00, 0x00, // 62
-      0x28, 0x00, 0x00, 0x00, // 40
-      0x00, 0x00, 0x00, 0x00, // width
-      0x00, 0x00, 0x00, 0x00, // height
-      0x01, 0x00, 0x01, 0x00, // planes and bpp
-      0x00, 0x00, 0x00, 0x00, // compression
-      0x00, 0x00, 0x00, 0x00, // size
-      0xc4, 0x0e, 0x00, 0x00, // x pxls per meter
-      0xc4, 0x0e, 0x00, 0x00, // y pxls per meter
-      0x02, 0x00, 0x00, 0x00, // colors in table
-      0x02, 0x00, 0x00, 0x00, // important color in table
-      0x00, 0x00, 0x00, 0x00, // red channel - fgcolor
-      0xff, 0xff, 0xff, 0xff  // green channel - bgcolor
-    };
-
     if (res == 0) {
-        bmp = calloc(bmp_1bit_size, sizeof(char *));
+        bmp = calloc(bmp_1bit_size * 1.1, sizeof(char *));
 
         memcpy(bmp, &bmp_template, header_size);
 
@@ -543,7 +544,6 @@ static PyObject* CZINT_render_bmp(
 
         char *pixels = &bmp[header_size];
 
-        unsigned int offset = 0;
         for(unsigned int y=height-1; y > 0; --y) {
             for(unsigned int x=0; x < width; x+=8) {
                 pixels[offset] = octet2char(&bitmap[y][x]);
@@ -571,7 +571,7 @@ static PyObject* CZINT_render_bmp(
         return NULL;
     }
 
-    PyObject *result = PyBytes_FromStringAndSize(bmp, bmp_1bit_size);
+    PyObject *result = PyBytes_FromStringAndSize(bmp, offset + header_size);
     if (result == NULL) {
         free(bmp);
         return NULL;
