@@ -658,17 +658,14 @@ static PyObject* CZINT_render_svg(
     /* Start writing the header */
     len_fsvg += snprintf(&fsvg[len_fsvg], max_len, "<?xml version=\"1.0\" standalone=\"no\"?>\n");
 
-    len_fsvg += snprintf(&fsvg[len_fsvg], max_len, "<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\"\n");
-    len_fsvg += snprintf(&fsvg[len_fsvg], max_len, "   \"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">\n");
-    len_fsvg += snprintf(&fsvg[len_fsvg], max_len, "<svg width=\"%d\" height=\"%d\" version=\"1.1\"\n", (int) ceil(symbol->vector->width), (int) ceil(symbol->vector->height));
-    len_fsvg += snprintf(&fsvg[len_fsvg], max_len, "   xmlns=\"http://www.w3.org/2000/svg\">\n");
-    len_fsvg += snprintf(&fsvg[len_fsvg], max_len, "   <desc>Zint Generated Symbol\n");
-    len_fsvg += snprintf(&fsvg[len_fsvg], max_len, "   </desc>\n");
-    len_fsvg += snprintf(&fsvg[len_fsvg], max_len, "\n   <g id=\"barcode\" fill=\"#%s\">\n", symbol->fgcolour);
-    len_fsvg += snprintf(&fsvg[len_fsvg], max_len, "      <rect x=\"0\" y=\"0\" width=\"%d\" height=\"%d\" fill=\"#%s\" />\n", (int) ceil(symbol->vector->width), (int) ceil(symbol->vector->height), symbol->bgcolour);
+    len_fsvg += snprintf(&fsvg[len_fsvg], max_len, "<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\" \"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">\n");
+    len_fsvg += snprintf(&fsvg[len_fsvg], max_len, "<svg width=\"%d\" height=\"%d\" version=\"1.1\" xmlns=\"http://www.w3.org/2000/svg\">\n", (int) ceil(symbol->vector->width), (int) ceil(symbol->vector->height));
+    len_fsvg += snprintf(&fsvg[len_fsvg], max_len, "<desc>Zint Generated Symbol via pyzint</desc>\n");
+    len_fsvg += snprintf(&fsvg[len_fsvg], max_len, "<g id=\"barcode\" fill=\"#%s\">\n", symbol->fgcolour);
+    len_fsvg += snprintf(&fsvg[len_fsvg], max_len, "<rect x=\"0\" y=\"0\" width=\"%d\" height=\"%d\" fill=\"#%s\" />\n", (int) ceil(symbol->vector->width), (int) ceil(symbol->vector->height), symbol->bgcolour);
     rect = symbol->vector->rectangles;
     while (rect) {
-        len_fsvg += snprintf(&fsvg[len_fsvg], max_len-len_fsvg, "      <rect x=\"%.2f\" y=\"%.2f\" width=\"%.2f\" height=\"%.2f\" />\n", rect->x, rect->y, rect->width, rect->height);
+        len_fsvg += snprintf(&fsvg[len_fsvg], max_len-len_fsvg, "<rect x=\"%.2f\" y=\"%.2f\" width=\"%.2f\" height=\"%.2f\" />\n", rect->x, rect->y, rect->width, rect->height);
         rect = rect->next;
     }
 
@@ -687,32 +684,32 @@ static PyObject* CZINT_render_svg(
         dx = hex->x;
         ex = hex->x - (0.86 * radius);
         fx = hex->x - (0.86 * radius);
-        len_fsvg += snprintf(&fsvg[len_fsvg], max_len-len_fsvg, "      <path d=\"M %.2f %.2f L %.2f %.2f L %.2f %.2f L %.2f %.2f L %.2f %.2f L %.2f %.2f Z\" />\n", ax, ay, bx, by, cx, cy, dx, dy, ex, ey, fx, fy);
+        len_fsvg += snprintf(&fsvg[len_fsvg], max_len-len_fsvg, "<path d=\"M %.2f %.2f L %.2f %.2f L %.2f %.2f L %.2f %.2f L %.2f %.2f L %.2f %.2f Z\" \n/>", ax, ay, bx, by, cx, cy, dx, dy, ex, ey, fx, fy);
         hex = hex->next;
     }
 
     circle = symbol->vector->circles;
     while (circle) {
         if (circle->colour) {
-            len_fsvg += snprintf(&fsvg[len_fsvg], max_len-len_fsvg, "      <circle cx=\"%.2f\" cy=\"%.2f\" r=\"%.2f\" fill=\"#%s\" />\n", circle->x, circle->y, circle->diameter / 2.0, symbol->bgcolour);
+            len_fsvg += snprintf(&fsvg[len_fsvg], max_len-len_fsvg, "<circle cx=\"%.2f\" cy=\"%.2f\" r=\"%.2f\" fill=\"#%s\" \n/>", circle->x, circle->y, circle->diameter / 2.0, symbol->bgcolour);
         } else {
-            len_fsvg += snprintf(&fsvg[len_fsvg], max_len-len_fsvg, "      <circle cx=\"%.2f\" cy=\"%.2f\" r=\"%.2f\" fill=\"#%s\" />\n", circle->x, circle->y, circle->diameter / 2.0, symbol->fgcolour);
+            len_fsvg += snprintf(&fsvg[len_fsvg], max_len-len_fsvg, "<circle cx=\"%.2f\" cy=\"%.2f\" r=\"%.2f\" fill=\"#%s\" \n/>", circle->x, circle->y, circle->diameter / 2.0, symbol->fgcolour);
         }
         circle = circle->next;
     }
 
     string = symbol->vector->strings;
     while (string) {
-        len_fsvg += snprintf(&fsvg[len_fsvg], max_len-len_fsvg, "      <text x=\"%.2f\" y=\"%.2f\" text-anchor=\"middle\"\n", string->x, string->y);
-        len_fsvg += snprintf(&fsvg[len_fsvg], max_len-len_fsvg, "         font-family=\"Helvetica\" font-size=\"%.1f\" fill=\"#%s\" >\n", string->fsize, symbol->fgcolour);
+        len_fsvg += snprintf(&fsvg[len_fsvg], max_len-len_fsvg, "<text x=\"%.2f\" y=\"%.2f\" text-anchor=\"middle\" ", string->x, string->y);
+        len_fsvg += snprintf(&fsvg[len_fsvg], max_len-len_fsvg, "font-family=\"Helvetica\" font-size=\"%.1f\" fill=\"#%s\">", string->fsize, symbol->fgcolour);
         make_html_friendly(string->text, html_string);
-        len_fsvg += snprintf(&fsvg[len_fsvg], max_len-len_fsvg, "         %s\n", html_string);
-        len_fsvg += snprintf(&fsvg[len_fsvg], max_len-len_fsvg, "      </text>\n");
+        len_fsvg += snprintf(&fsvg[len_fsvg], max_len-len_fsvg, " %s ", html_string);
+        len_fsvg += snprintf(&fsvg[len_fsvg], max_len-len_fsvg, "</text>");
         string = string->next;
     }
 
-    len_fsvg += snprintf(&fsvg[len_fsvg], max_len-len_fsvg, "   </g>\n");
-    len_fsvg += snprintf(&fsvg[len_fsvg], max_len-len_fsvg, "</svg>\n");
+    len_fsvg += snprintf(&fsvg[len_fsvg], max_len-len_fsvg, "</g>");
+    len_fsvg += snprintf(&fsvg[len_fsvg], max_len-len_fsvg, "</svg>");
 
     Py_END_ALLOW_THREADS
 

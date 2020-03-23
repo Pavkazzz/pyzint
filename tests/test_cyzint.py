@@ -20,5 +20,5 @@ def test_svg_rss_exp_cyzint():
     z = Zint("[255]11111111111222", BARCODE_RSS_EXP)
     barcode = z.render_svg()
     xml = ET.fromstring(barcode.decode())
-    assert xml.get('width') == 366
-    assert xml.get('height') == 86
+    assert int(xml.get('width')) == 366
+    assert int(xml.get('height')) == 86
