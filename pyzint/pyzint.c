@@ -8,6 +8,7 @@ typedef struct {
     PyObject_HEAD
     struct zint_symbol *symbol;
     PyObject *data;
+    char *human_symbology;
     char *buffer;
     Py_ssize_t length;
 } CZINT;
@@ -67,6 +68,298 @@ CZINT_init(CZINT *self, PyObject *args, PyObject *kwds)
             &self->data, &self->symbol->symbology, &self->symbol->scale
     )) return -1;
 
+    switch (self->symbol->symbology) {
+        case (BARCODE_CODE11):
+            self->human_symbology = "code11";
+            break;
+        case (BARCODE_C25MATRIX):
+            self->human_symbology = "c25matrix";
+            break;
+        case (BARCODE_C25INTER):
+            self->human_symbology = "c25inter";
+            break;
+        case (BARCODE_C25IATA):
+            self->human_symbology = "c25iata";
+            break;
+        case (BARCODE_C25LOGIC):
+            self->human_symbology = "c25logic";
+            break;
+        case (BARCODE_C25IND):
+            self->human_symbology = "c25ind";
+            break;
+        case (BARCODE_CODE39):
+            self->human_symbology = "code39";
+            break;
+        case (BARCODE_EXCODE39):
+            self->human_symbology = "excode39";
+            break;
+        case (BARCODE_EANX):
+            self->human_symbology = "eanx";
+            break;
+        case (BARCODE_EANX_CHK):
+            self->human_symbology = "eanx_chk";
+            break;
+        case (BARCODE_EAN128):
+            self->human_symbology = "ean128";
+            break;
+        case (BARCODE_CODABAR):
+            self->human_symbology = "codabar";
+            break;
+        case (BARCODE_CODE128):
+            self->human_symbology = "code128";
+            break;
+        case (BARCODE_DPLEIT):
+            self->human_symbology = "dpleit";
+            break;
+        case (BARCODE_DPIDENT):
+            self->human_symbology = "dpident";
+            break;
+        case (BARCODE_CODE16K):
+            self->human_symbology = "code16k";
+            break;
+        case (BARCODE_CODE49):
+            self->human_symbology = "code49";
+            break;
+        case (BARCODE_CODE93):
+            self->human_symbology = "code93";
+            break;
+        case (BARCODE_FLAT):
+            self->human_symbology = "flat";
+            break;
+        case (BARCODE_RSS14):
+            self->human_symbology = "rss14";
+            break;
+        case (BARCODE_RSS_LTD):
+            self->human_symbology = "rss_ltd";
+            break;
+        case (BARCODE_RSS_EXP):
+            self->human_symbology = "rss_exp";
+            break;
+        case (BARCODE_TELEPEN):
+            self->human_symbology = "telepen";
+            break;
+        case (BARCODE_UPCA):
+            self->human_symbology = "upca";
+            break;
+        case (BARCODE_UPCA_CHK):
+            self->human_symbology = "upca_chk";
+            break;
+        case (BARCODE_UPCE):
+            self->human_symbology = "upce";
+            break;
+        case (BARCODE_UPCE_CHK):
+            self->human_symbology = "upce_chk";
+            break;
+        case (BARCODE_POSTNET):
+            self->human_symbology = "postnet";
+            break;
+        case (BARCODE_MSI_PLESSEY):
+            self->human_symbology = "msi_plessey";
+            break;
+        case (BARCODE_FIM):
+            self->human_symbology = "fim";
+            break;
+        case (BARCODE_LOGMARS):
+            self->human_symbology = "logmars";
+            break;
+        case (BARCODE_PHARMA):
+            self->human_symbology = "pharma";
+            break;
+        case (BARCODE_PZN):
+            self->human_symbology = "pzn";
+            break;
+        case (BARCODE_PHARMA_TWO):
+            self->human_symbology = "pharma_two";
+            break;
+        case (BARCODE_PDF417):
+            self->human_symbology = "pdf417";
+            break;
+        case (BARCODE_PDF417TRUNC):
+            self->human_symbology = "pdf417trunc";
+            break;
+        case (BARCODE_MAXICODE):
+            self->human_symbology = "maxicode";
+            break;
+        case (BARCODE_QRCODE):
+            self->human_symbology = "qrcode";
+            break;
+        case (BARCODE_CODE128B):
+            self->human_symbology = "code128b";
+            break;
+        case (BARCODE_AUSPOST):
+            self->human_symbology = "auspost";
+            break;
+        case (BARCODE_AUSREPLY):
+            self->human_symbology = "ausreply";
+            break;
+        case (BARCODE_AUSROUTE):
+            self->human_symbology = "ausroute";
+            break;
+        case (BARCODE_AUSREDIRECT):
+            self->human_symbology = "ausredirect";
+            break;
+        case (BARCODE_ISBNX):
+            self->human_symbology = "isbnx";
+            break;
+        case (BARCODE_RM4SCC):
+            self->human_symbology = "rm4scc";
+            break;
+        case (BARCODE_DATAMATRIX):
+            self->human_symbology = "datamatrix";
+            break;
+        case (BARCODE_EAN14):
+            self->human_symbology = "ean14";
+            break;
+        case (BARCODE_VIN):
+            self->human_symbology = "vin";
+            break;
+        case (BARCODE_CODABLOCKF):
+            self->human_symbology = "codablockf";
+            break;
+        case (BARCODE_NVE18):
+            self->human_symbology = "nve18";
+            break;
+        case (BARCODE_JAPANPOST):
+            self->human_symbology = "japanpost";
+            break;
+        case (BARCODE_KOREAPOST):
+            self->human_symbology = "koreapost";
+            break;
+        case (BARCODE_RSS14STACK):
+            self->human_symbology = "rss14stack";
+            break;
+        case (BARCODE_RSS14STACK_OMNI):
+            self->human_symbology = "rss14stack_omni";
+            break;
+        case (BARCODE_RSS_EXPSTACK):
+            self->human_symbology = "rss_expstack";
+            break;
+        case (BARCODE_PLANET):
+            self->human_symbology = "planet";
+            break;
+        case (BARCODE_MICROPDF417):
+            self->human_symbology = "micropdf417";
+            break;
+        case (BARCODE_ONECODE):
+            self->human_symbology = "onecode";
+            break;
+        case (BARCODE_PLESSEY):
+            self->human_symbology = "plessey";
+            break;
+        case (BARCODE_TELEPEN_NUM):
+            self->human_symbology = "telepen_num";
+            break;
+        case (BARCODE_ITF14):
+            self->human_symbology = "itf14";
+            break;
+        case (BARCODE_KIX):
+            self->human_symbology = "kix";
+            break;
+        case (BARCODE_AZTEC):
+            self->human_symbology = "aztec";
+            break;
+        case (BARCODE_DAFT):
+            self->human_symbology = "daft";
+            break;
+        case (BARCODE_MICROQR):
+            self->human_symbology = "microqr";
+            break;
+        case (BARCODE_HIBC_128):
+            self->human_symbology = "hibc_128";
+            break;
+        case (BARCODE_HIBC_39):
+            self->human_symbology = "hibc_39";
+            break;
+        case (BARCODE_HIBC_DM):
+            self->human_symbology = "hibc_dm";
+            break;
+        case (BARCODE_HIBC_QR):
+            self->human_symbology = "hibc_qr";
+            break;
+        case (BARCODE_HIBC_PDF):
+            self->human_symbology = "hibc_pdf";
+            break;
+        case (BARCODE_HIBC_MICPDF):
+            self->human_symbology = "hibc_micpdf";
+            break;
+        case (BARCODE_HIBC_BLOCKF):
+            self->human_symbology = "hibc_blockf";
+            break;
+        case (BARCODE_HIBC_AZTEC):
+            self->human_symbology = "hibc_aztec";
+            break;
+        case (BARCODE_DOTCODE):
+            self->human_symbology = "dotcode";
+            break;
+        case (BARCODE_HANXIN):
+            self->human_symbology = "hanxin";
+            break;
+        case (BARCODE_MAILMARK):
+            self->human_symbology = "mailmark";
+            break;
+        case (BARCODE_AZRUNE):
+            self->human_symbology = "azrune";
+            break;
+        case (BARCODE_CODE32):
+            self->human_symbology = "code32";
+            break;
+        case (BARCODE_EANX_CC):
+            self->human_symbology = "eanx_cc";
+            break;
+        case (BARCODE_EAN128_CC):
+            self->human_symbology = "ean128_cc";
+            break;
+        case (BARCODE_RSS14_CC):
+            self->human_symbology = "rss14_cc";
+            break;
+        case (BARCODE_RSS_LTD_CC):
+            self->human_symbology = "rss_ltd_cc";
+            break;
+        case (BARCODE_RSS_EXP_CC):
+            self->human_symbology = "rss_exp_cc";
+            break;
+        case (BARCODE_UPCA_CC):
+            self->human_symbology = "upca_cc";
+            break;
+        case (BARCODE_UPCE_CC):
+            self->human_symbology = "upce_cc";
+            break;
+        case (BARCODE_RSS14STACK_CC):
+            self->human_symbology = "rss14stack_cc";
+            break;
+        case (BARCODE_RSS14_OMNI_CC):
+            self->human_symbology = "rss14_omni_cc";
+            break;
+        case (BARCODE_RSS_EXPSTACK_CC):
+            self->human_symbology = "rss_expstack_cc";
+            break;
+        case (BARCODE_CHANNEL):
+            self->human_symbology = "channel";
+            break;
+        case (BARCODE_CODEONE):
+            self->human_symbology = "codeone";
+            break;
+        case (BARCODE_GRIDMATRIX):
+            self->human_symbology = "gridmatrix";
+            break;
+        case (BARCODE_UPNQR):
+            self->human_symbology = "upnqr";
+            break;
+        case (BARCODE_ULTRA):
+            self->human_symbology = "ultra";
+            break;
+        case (BARCODE_RMQR):
+            self->human_symbology = "rmqr";
+            break;
+        default:
+            PyErr_Format(
+                PyExc_ValueError,
+                "Unknown barcode type %d",
+                self->symbol->symbology
+            );
+            return -1;
+    }
+
     if (PyBytes_Check(self->data)) {
         if (PyBytes_AsStringAndSize(self->data, &self->buffer, &self->length) == -1) {
             return -1;
@@ -101,7 +394,7 @@ int parse_color_hex(const char *str, unsigned int *target) {
         return 0;
     }
     if (str[0] != '#') {
-        PyErr_Format(
+        PyErr_SetFormat(
             PyExc_ValueError,
             "Invalid color: %s. Color must be started with '#'",
             str
@@ -111,7 +404,7 @@ int parse_color_hex(const char *str, unsigned int *target) {
 
     int res = sscanf(&str[1],"%2x%2x%2x", &target[0], &target[1], &target[2]);
     if (res < 0) {
-        PyErr_Format(
+        PyErr_SetString(
             PyExc_ValueError,
             "Invalid color format. Color must be in '#ffffff'"
         );
