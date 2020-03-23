@@ -1,11 +1,10 @@
 pyzint
 ======
+.. image:: https://github.com/pavkazzz/pyzint/workflows/Python%20package/badge.svg
+    :target: https://github.com/Pavkazzz/pyzint/actions
+    :alt: GitHub CI
 
-.. image:: https://cloud.drone.io/api/badges/Pavkazzz/pyzint/status.svg
-    :target: https://cloud.drone.io/Pavkazzz/pyzint
-    :alt: Drone CI
-
-.. image:: https://img.shields.io/pypi/v/aio-pika.svg
+.. image:: https://img.shields.io/pypi/v/pyzint.svg
     :target: https://pypi.python.org/pypi/pyzint/
     :alt: Latest Version
 
