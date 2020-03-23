@@ -6,9 +6,10 @@ extern void make_html_friendly(unsigned char * string, char * html_version);
 
 typedef struct {
     PyObject_HEAD
-    struct zint_symbol *symbol;
     PyObject *data;
     char *human_symbology;
+    unsigned int symbology;
+    float scale;
     char *buffer;
     Py_ssize_t length;
 } CZINT;
@@ -24,10 +25,6 @@ CZINT_new(PyTypeObject *type, PyObject *args, PyObject *kwds) {
 
 static void
 CZINT_dealloc(CZINT *self) {
-    if (self->symbol != NULL) {
-        ZBarcode_Delete(self->symbol);
-        self->symbol = NULL;
-    }
     Py_CLEAR(self->data);
     self->buffer = NULL;
 
@@ -53,22 +50,20 @@ CZINT_init(CZINT *self, PyObject *args, PyObject *kwds)
 {
     static char *kwlist[] = {"data", "kind", "scale", NULL};
 
-    self->symbol = ZBarcode_Create();
+    if (!PyArg_ParseTupleAndKeywords(
+            args, kwds, "Ob|f", kwlist,
+            &self->data, &self->symbology, &self->scale
+    )) return -1;
 
-    if (self->symbol == NULL) {
-        PyErr_Format(
-            PyExc_RuntimeError,
-            "Symbol initialization failed"
+    if (self->scale <= 0) {
+        PyErr_SetString(
+            PyExc_ValueError,
+            "scale must be greater then zero"
         );
         return -1;
     }
 
-    if (!PyArg_ParseTupleAndKeywords(
-            args, kwds, "Ob|f", kwlist,
-            &self->data, &self->symbol->symbology, &self->symbol->scale
-    )) return -1;
-
-    switch (self->symbol->symbology) {
+    switch (self->symbology) {
         case (BARCODE_CODE11):
             self->human_symbology = "code11";
             break;
@@ -355,7 +350,7 @@ CZINT_init(CZINT *self, PyObject *args, PyObject *kwds)
             PyErr_Format(
                 PyExc_ValueError,
                 "Unknown barcode type %d",
-                self->symbol->symbology
+                self->symbology
             );
             return -1;
     }
@@ -379,13 +374,10 @@ CZINT_init(CZINT *self, PyObject *args, PyObject *kwds)
 }
 
 static PyObject* CZINT_repr(CZINT *self) {
-    if (self->symbol == NULL) {
-        PyErr_SetString(PyExc_RuntimeError, "Pool not initialized");
-        return NULL;
-    }
     return PyUnicode_FromFormat(
-        "<%s as %p: kind=%d buffer=%s (%d)>",
-        Py_TYPE(self)->tp_name, self, self->symbol->symbology, self->buffer, self->length
+        "<%s as %p: kind=%s (%d) buffer=%s (%d)>",
+        Py_TYPE(self)->tp_name, self, self->human_symbology,
+        self->symbology, self->buffer, self->length
     );
 }
 
@@ -432,7 +424,8 @@ int parse_color_str(const char *str, char *target) {
 
 
 PyDoc_STRVAR(CZINT_render_bmp_docstring,
-    "Render bmp.\n\n"
+    "Render bmp barcode. Image will 1bit color depth "
+    "and user defined palette.\n\n"
     "    ZBarcode('data').render_bmp(angle: int = 0) -> bytes"
 );
 static PyObject* CZINT_render_bmp(
@@ -459,22 +452,36 @@ static PyObject* CZINT_render_bmp(
     int res = 0;
     char *bmp = NULL;
     int bmp_1bit_size = 0;
+
+    struct zint_symbol *symbol = ZBarcode_Create();
+
+    if (symbol == NULL) {
+        PyErr_Format(
+            PyExc_RuntimeError,
+            "Symbol initialization failed"
+        );
+        return NULL;
+    }
+
     Py_BEGIN_ALLOW_THREADS
 
+    symbol->symbology = self->symbology;
+    symbol->scale = self->scale;
+
     res = ZBarcode_Encode_and_Buffer(
-        self->symbol,
+        symbol,
         (unsigned char *)self->buffer,
         self->length, angle
     );
 
-    unsigned int width = self->symbol->bitmap_width;
-    unsigned int height = self->symbol->bitmap_height;
+    unsigned int width = symbol->bitmap_width;
+    unsigned int height = symbol->bitmap_height;
 
     unsigned char bitmap[height][width + 8];
     memset(&bitmap, 0, height * (width + 8));
 
     for (unsigned int i=0; i<height*width; i++) {
-        bitmap[i/width][i%width] = self->symbol->bitmap[i * 3];
+        bitmap[i/width][i%width] = symbol->bitmap[i * 3];
     }
 
     static const unsigned int header_size = 62;
@@ -546,16 +553,24 @@ static PyObject* CZINT_render_bmp(
         }
     }
 
+    if (res == 0) {
+        ZBarcode_Clear(symbol);
+        ZBarcode_Delete(symbol);
+    }
+
     Py_END_ALLOW_THREADS
 
     if (res > 0) {
         PyErr_Format(
             PyExc_RuntimeError,
             "Error while rendering: %s",
-            self->symbol->errtxt
+            symbol->errtxt
         );
+        ZBarcode_Clear(symbol);
+        ZBarcode_Delete(symbol);
         return NULL;
     }
+
     PyObject *result = PyBytes_FromStringAndSize(bmp, bmp_1bit_size);
     if (result == NULL) {
         free(bmp);
@@ -566,7 +581,7 @@ static PyObject* CZINT_render_bmp(
 }
 
 PyDoc_STRVAR(CZINT_render_svg_docstring,
-    "Render bmp.\n\n"
+    "Render svg barcode.\n\n"
     "    ZBarcode('data').render_svg(angle: int = 0) -> bytes"
 );
 static PyObject* CZINT_render_svg(
