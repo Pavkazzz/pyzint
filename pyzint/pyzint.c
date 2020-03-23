@@ -386,7 +386,7 @@ int parse_color_hex(const char *str, unsigned int *target) {
         return 0;
     }
     if (str[0] != '#') {
-        PyErr_SetFormat(
+        PyErr_Format(
             PyExc_ValueError,
             "Invalid color: %s. Color must be started with '#'",
             str
