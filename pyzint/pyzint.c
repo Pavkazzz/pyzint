@@ -386,7 +386,7 @@ int parse_color_hex(const char *str, unsigned int *target) {
         return 0;
     }
     if (str[0] != '#') {
-        PyErr_SetFormat(
+        PyErr_Format(
             PyExc_ValueError,
             "Invalid color: %s. Color must be started with '#'",
             str
@@ -571,11 +571,7 @@ static PyObject* CZINT_render_bmp(
         return NULL;
     }
 
-    PyObject *result = PyBytes_FromStringAndSize(bmp, offset + header_size);
-    if (result == NULL) {
-        free(bmp);
-        return NULL;
-    }
+    PyObject *result = PyBytes_FromStringAndSize(bmp, bmp_1bit_size);
     free(bmp);
     return result;
 }
@@ -599,8 +595,18 @@ static PyObject* CZINT_render_svg(
         &angle, &fgcolor_str, &bgcolor_str
     )) return NULL;
 
-    if (parse_color_str(fgcolor_str, (char *)&self->symbol->fgcolour)) return NULL;
-    if (parse_color_str(bgcolor_str, (char *)&self->symbol->bgcolour)) return NULL;
+    struct zint_symbol *symbol = ZBarcode_Create();
+
+    if (symbol == NULL) {
+        PyErr_Format(
+            PyExc_RuntimeError,
+            "Symbol initialization failed"
+        );
+        return NULL;
+    }
+
+    if (parse_color_str(fgcolor_str, (char *)&symbol->fgcolour)) return NULL;
+    if (parse_color_str(bgcolor_str, (char *)&symbol->bgcolour)) return NULL;
 
     int res = 0;
     char *fsvg = NULL;
@@ -616,11 +622,11 @@ static PyObject* CZINT_render_svg(
 
     Py_BEGIN_ALLOW_THREADS
 
-    res = ZBarcode_Encode_and_Buffer_Vector(self->symbol, (unsigned char *)self->buffer, self->length, angle);
+    res = ZBarcode_Encode_and_Buffer_Vector(symbol, (unsigned char *)self->buffer, self->length, angle);
 
-    int html_len = strlen((char *)self->symbol->text) + 1;
-    for (unsigned int i = 0; i < strlen((char *)self->symbol->text); i++) {
-        switch(self->symbol->text[i]) {
+    int html_len = strlen((char *)symbol->text) + 1;
+    for (unsigned int i = 0; i < strlen((char *)symbol->text); i++) {
+        switch(symbol->text[i]) {
             case '>':
             case '<':
             case '"':
@@ -639,19 +645,19 @@ static PyObject* CZINT_render_svg(
 
     len_fsvg += snprintf(&fsvg[len_fsvg], max_len, "<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\"\n");
     len_fsvg += snprintf(&fsvg[len_fsvg], max_len, "   \"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">\n");
-    len_fsvg += snprintf(&fsvg[len_fsvg], max_len, "<svg width=\"%d\" height=\"%d\" version=\"1.1\"\n", (int) ceil(self->symbol->vector->width), (int) ceil(self->symbol->vector->height));
+    len_fsvg += snprintf(&fsvg[len_fsvg], max_len, "<svg width=\"%d\" height=\"%d\" version=\"1.1\"\n", (int) ceil(symbol->vector->width), (int) ceil(symbol->vector->height));
     len_fsvg += snprintf(&fsvg[len_fsvg], max_len, "   xmlns=\"http://www.w3.org/2000/svg\">\n");
     len_fsvg += snprintf(&fsvg[len_fsvg], max_len, "   <desc>Zint Generated Symbol\n");
     len_fsvg += snprintf(&fsvg[len_fsvg], max_len, "   </desc>\n");
-    len_fsvg += snprintf(&fsvg[len_fsvg], max_len, "\n   <g id=\"barcode\" fill=\"#%s\">\n", self->symbol->fgcolour);
-    len_fsvg += snprintf(&fsvg[len_fsvg], max_len, "      <rect x=\"0\" y=\"0\" width=\"%d\" height=\"%d\" fill=\"#%s\" />\n", (int) ceil(self->symbol->vector->width), (int) ceil(self->symbol->vector->height), self->symbol->bgcolour);
-    rect = self->symbol->vector->rectangles;
+    len_fsvg += snprintf(&fsvg[len_fsvg], max_len, "\n   <g id=\"barcode\" fill=\"#%s\">\n", symbol->fgcolour);
+    len_fsvg += snprintf(&fsvg[len_fsvg], max_len, "      <rect x=\"0\" y=\"0\" width=\"%d\" height=\"%d\" fill=\"#%s\" />\n", (int) ceil(symbol->vector->width), (int) ceil(symbol->vector->height), symbol->bgcolour);
+    rect = symbol->vector->rectangles;
     while (rect) {
         len_fsvg += snprintf(&fsvg[len_fsvg], max_len-len_fsvg, "      <rect x=\"%.2f\" y=\"%.2f\" width=\"%.2f\" height=\"%.2f\" />\n", rect->x, rect->y, rect->width, rect->height);
         rect = rect->next;
     }
 
-    hex = self->symbol->vector->hexagons;
+    hex = symbol->vector->hexagons;
     while (hex) {
         radius = hex->diameter / 2.0;
         ay = hex->y + (1.0 * radius);
@@ -670,20 +676,20 @@ static PyObject* CZINT_render_svg(
         hex = hex->next;
     }
 
-    circle = self->symbol->vector->circles;
+    circle = symbol->vector->circles;
     while (circle) {
         if (circle->colour) {
-            len_fsvg += snprintf(&fsvg[len_fsvg], max_len-len_fsvg, "      <circle cx=\"%.2f\" cy=\"%.2f\" r=\"%.2f\" fill=\"#%s\" />\n", circle->x, circle->y, circle->diameter / 2.0, self->symbol->bgcolour);
+            len_fsvg += snprintf(&fsvg[len_fsvg], max_len-len_fsvg, "      <circle cx=\"%.2f\" cy=\"%.2f\" r=\"%.2f\" fill=\"#%s\" />\n", circle->x, circle->y, circle->diameter / 2.0, symbol->bgcolour);
         } else {
-            len_fsvg += snprintf(&fsvg[len_fsvg], max_len-len_fsvg, "      <circle cx=\"%.2f\" cy=\"%.2f\" r=\"%.2f\" fill=\"#%s\" />\n", circle->x, circle->y, circle->diameter / 2.0, self->symbol->fgcolour);
+            len_fsvg += snprintf(&fsvg[len_fsvg], max_len-len_fsvg, "      <circle cx=\"%.2f\" cy=\"%.2f\" r=\"%.2f\" fill=\"#%s\" />\n", circle->x, circle->y, circle->diameter / 2.0, symbol->fgcolour);
         }
         circle = circle->next;
     }
 
-    string = self->symbol->vector->strings;
+    string = symbol->vector->strings;
     while (string) {
         len_fsvg += snprintf(&fsvg[len_fsvg], max_len-len_fsvg, "      <text x=\"%.2f\" y=\"%.2f\" text-anchor=\"middle\"\n", string->x, string->y);
-        len_fsvg += snprintf(&fsvg[len_fsvg], max_len-len_fsvg, "         font-family=\"Helvetica\" font-size=\"%.1f\" fill=\"#%s\" >\n", string->fsize, self->symbol->fgcolour);
+        len_fsvg += snprintf(&fsvg[len_fsvg], max_len-len_fsvg, "         font-family=\"Helvetica\" font-size=\"%.1f\" fill=\"#%s\" >\n", string->fsize, symbol->fgcolour);
         make_html_friendly(string->text, html_string);
         len_fsvg += snprintf(&fsvg[len_fsvg], max_len-len_fsvg, "         %s\n", html_string);
         len_fsvg += snprintf(&fsvg[len_fsvg], max_len-len_fsvg, "      </text>\n");
@@ -695,20 +701,29 @@ static PyObject* CZINT_render_svg(
 
     Py_END_ALLOW_THREADS
 
+    if (res == 0) {
+        ZBarcode_Clear(symbol);
+        ZBarcode_Delete(symbol);
+    }
+
     if (res > 0) {
         PyErr_Format(
             PyExc_RuntimeError,
             "Error while rendering: %s",
-            self->symbol->errtxt
+            symbol->errtxt
         );
+        ZBarcode_Clear(symbol);
+        ZBarcode_Delete(symbol);
         return NULL;
     }
+
     PyObject *result = PyBytes_FromStringAndSize(fsvg, len_fsvg);
+    free(fsvg);
+
     if (result == NULL) {
-        free(fsvg);
         return NULL;
     }
-    free(fsvg);
+
     return result;
 }
 
