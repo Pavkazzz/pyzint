@@ -50,6 +50,8 @@ CZINT_init(CZINT *self, PyObject *args, PyObject *kwds)
 {
     static char *kwlist[] = {"data", "kind", "scale", NULL};
 
+    self->scale = 1.0;
+
     if (!PyArg_ParseTupleAndKeywords(
             args, kwds, "Ob|f", kwlist,
             &self->data, &self->symbology, &self->scale
@@ -613,6 +615,9 @@ static PyObject* CZINT_render_svg(
 
     if (parse_color_str(fgcolor_str, (char *)&symbol->fgcolour)) return NULL;
     if (parse_color_str(bgcolor_str, (char *)&symbol->bgcolour)) return NULL;
+
+    symbol->symbology = self->symbology;
+    symbol->scale = self->scale;
 
     int res = 0;
     char *fsvg = NULL;
