@@ -63,6 +63,9 @@ setup(
             define_macros=[("NO_PNG", "1")]
         ),
     ],
+    project_urls={
+        'Source': 'https://github.com/Pavkazzz/pyzint',
+    },
     classifiers=[
         'License :: OSI Approved :: Apache Software License',
         'Topic :: Internet',
