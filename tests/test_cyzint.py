@@ -1,4 +1,4 @@
-from cyzint.cyzint import ZBarcode, BARCODE_RSS_EXP
+from pyzint.cyzint import ZBarcode, BARCODE_RSS_EXP
 
 
 def test_cyzint():

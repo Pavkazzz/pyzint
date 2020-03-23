@@ -43,6 +43,9 @@ uint8_t octet2char(const char* src) {
     result |= (src[5]?1:0) << 2;
     result |= (src[6]?1:0) << 1;
     result |= (src[7]?1:0);
+
+    printf("%d%d%d%d%d%d%d%d", src[0]?1:0, src[1]?1:0, src[2]?1:0, src[3]?1:0, src[4]?1:0, src[5]?1:0, src[6]?1:0, src[7]?1:0);
+
     return result;
 }
 
@@ -191,8 +194,8 @@ static PyObject* CZINT_render_bmp(
       0xc4, 0x0e, 0x00, 0x00, // y pxls per meter
       0x02, 0x00, 0x00, 0x00, // colors in table
       0x02, 0x00, 0x00, 0x00, // important color in table
-      0x00, 0x00, 0x00, 0x00, // red channel
-      0xff, 0xff, 0xff, 0xff  // green channel
+      0x00, 0x00, 0x00, 0x00, // red channel - fgcolor
+      0xff, 0xff, 0xff, 0xff  // green channel - bgcolor
     };
 
     if (res == 0) {
@@ -238,6 +241,7 @@ static PyObject* CZINT_render_bmp(
             }
             offset += padding;
         }
+        printf("\n");
     }
 
     Py_END_ALLOW_THREADS
@@ -266,13 +270,23 @@ PyDoc_STRVAR(CZINT_render_svg_docstring,
 static PyObject* CZINT_render_svg(
     CZINT *self, PyObject *args, PyObject *kwds
 ) {
-    static char *kwlist[] = {"angle", NULL};
+    static char *kwlist[] = {"angle", "fgcolor", "bgcolor", NULL};
 
     int angle = 0;
+    unsigned int fgcolor[3] = {0, 0, 0};
+    unsigned int bgcolor[3] = {255, 255, 255};
+
+    char *fgcolor_str = NULL;
+    char *bgcolor_str = NULL;
+
+
     if (!PyArg_ParseTupleAndKeywords(
-        args, kwds, "|i", kwlist,
-        &angle
+        args, kwds, "|iss", kwlist,
+        &angle, &self->symbol->fgcolour, &self->symbol->bgcolour
     )) return NULL;
+
+    if (parse_color(fgcolor_str, &fgcolor)) return NULL;
+    if (parse_color(bgcolor_str, &bgcolor)) return NULL;
 
     int res = 0;
     unsigned int size = 0;
