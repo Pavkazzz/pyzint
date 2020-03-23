@@ -3,8 +3,9 @@ exclude .*
 recursive-exclude pyzint/src/zint *
 recursive-exclude __pycache__ *
 
-recursive-include pyzint/src/zint/backend *.c *.h
+recursive-include pyzint/src/zint/backend *.c *.h LICENSE
 recursive-exclude pyzint/src/zint/backend/tests *
 recursive-exclude pyzint/src/zint/backend/tools *
 
+include pyzint/src/*.h
 include README.rst
