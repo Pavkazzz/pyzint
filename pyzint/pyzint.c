@@ -44,8 +44,6 @@ uint8_t octet2char(const char* src) {
     result |= (src[6]?1:0) << 1;
     result |= (src[7]?1:0);
 
-    printf("%d%d%d%d%d%d%d%d", src[0]?1:0, src[1]?1:0, src[2]?1:0, src[3]?1:0, src[4]?1:0, src[5]?1:0, src[6]?1:0, src[7]?1:0);
-
     return result;
 }
 
@@ -98,7 +96,7 @@ static PyObject* CZINT_repr(CZINT *self) {
     );
 }
 
-int parse_color(const char *str, unsigned int *target) {
+int parse_color_hex(const char *str, unsigned int *target) {
     if (str == NULL) {
         return 0;
     }
@@ -123,6 +121,22 @@ int parse_color(const char *str, unsigned int *target) {
     return 0;
 }
 
+int parse_color_str(const char *str, char *target) {
+    if (str == NULL) {
+        return 0;
+    }
+    if (str[0] != '#') {
+        PyErr_Format(
+            PyExc_ValueError,
+            "Invalid color: %s. Color must be started with '#'",
+            str
+        );
+        return -1;
+    }
+    memcpy(&str[1], target, 6);
+}
+
+
 PyDoc_STRVAR(CZINT_render_bmp_docstring,
     "Render bmp.\n\n"
     "    ZBarcode('data').render_bmp(angle: int = 0) -> bytes"
@@ -145,8 +159,8 @@ static PyObject* CZINT_render_bmp(
         &angle, &fgcolor_str, &bgcolor_str
     )) return NULL;
 
-    if (parse_color(fgcolor_str, &fgcolor)) return NULL;
-    if (parse_color(bgcolor_str, &bgcolor)) return NULL;
+    if (parse_color_hex(fgcolor_str, &fgcolor)) return NULL;
+    if (parse_color_hex(bgcolor_str, &bgcolor)) return NULL;
 
     int res = 0;
     unsigned int bmp_size = 0;
@@ -273,20 +287,18 @@ static PyObject* CZINT_render_svg(
     static char *kwlist[] = {"angle", "fgcolor", "bgcolor", NULL};
 
     int angle = 0;
-    unsigned int fgcolor[3] = {0, 0, 0};
-    unsigned int bgcolor[3] = {255, 255, 255};
-
-    char *fgcolor_str = NULL;
-    char *bgcolor_str = NULL;
+    char *fgcolor_str = "000000";
+    char *bgcolor_str = "FFFFFF";
 
 
     if (!PyArg_ParseTupleAndKeywords(
         args, kwds, "|iss", kwlist,
-        &angle, &self->symbol->fgcolour, &self->symbol->bgcolour
+        &angle, &fgcolor_str, &bgcolor_str
     )) return NULL;
 
-    if (parse_color(fgcolor_str, &fgcolor)) return NULL;
-    if (parse_color(bgcolor_str, &bgcolor)) return NULL;
+
+    if (parse_color_str(fgcolor_str, &self->symbol->fgcolour)) return NULL;
+    if (parse_color_str(bgcolor_str, &self->symbol->bgcolour)) return NULL;
 
     int res = 0;
     unsigned int size = 0;
@@ -295,7 +307,6 @@ static PyObject* CZINT_render_svg(
     Py_BEGIN_ALLOW_THREADS
 
     res = ZBarcode_Encode_and_Buffer_Vector(self->symbol, (unsigned char *)self->buffer, self->length, angle);
-
 
     Py_END_ALLOW_THREADS
 
@@ -345,26 +356,25 @@ ZINTType = {
     .tp_new = CZINT_new,
     .tp_init = (initproc) CZINT_init,
     .tp_dealloc = (destructor) CZINT_dealloc,
-//    .tp_members = CZINT_members,
     .tp_methods = CZINT_methods,
     .tp_repr = (reprfunc) CZINT_repr
 };
 
 
-static PyModuleDef cyzint_module = {
+static PyModuleDef pyzint_module = {
     PyModuleDef_HEAD_INIT,
-    .m_name = "cyzint",
-    .m_doc = "Cyzint binding",
+    .m_name = "pyzint",
+    .m_doc = "Pyzint binding",
     .m_size = -1,
 };
 
-PyMODINIT_FUNC PyInit_cyzint(void) {
+PyMODINIT_FUNC PyInit_pyzint(void) {
     static PyTypeObject* ZINTTypeP = &ZINTType;
     PyEval_InitThreads();
 
     PyObject *m;
 
-    m = PyModule_Create(&cyzint_module);
+    m = PyModule_Create(&pyzint_module);
 
     if (m == NULL) return NULL;
 
@@ -372,7 +382,7 @@ PyMODINIT_FUNC PyInit_cyzint(void) {
 
     Py_INCREF(ZINTTypeP);
 
-    if (PyModule_AddObject(m, "ZBarcode", (PyObject *) ZINTTypeP) < 0) {
+    if (PyModule_AddObject(m, "Zint", (PyObject *) ZINTTypeP) < 0) {
         Py_XDECREF(ZINTTypeP);
         Py_XDECREF(m);
         return NULL;
