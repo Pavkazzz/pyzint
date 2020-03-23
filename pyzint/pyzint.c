@@ -2,6 +2,8 @@
 #include "endianness.h"
 #include "src/zint/backend/zint.h"
 
+extern void make_html_friendly(unsigned char * string, char * html_version);
+
 typedef struct {
     PyObject_HEAD
     struct zint_symbol *symbol;
@@ -31,10 +33,8 @@ CZINT_dealloc(CZINT *self) {
     Py_TYPE(self)->tp_free((PyObject *) self);
 }
 
-uint8_t octet2char(const char* src) {
+uint8_t octet2char(const unsigned char* src) {
     unsigned char result = 0;
-    unsigned char t;
-
     result |= (src[0]?1:0) << 7;
     result |= (src[1]?1:0) << 6;
     result |= (src[2]?1:0) << 5;
@@ -72,7 +72,7 @@ CZINT_init(CZINT *self, PyObject *args, PyObject *kwds)
             return -1;
         }
     } else if (PyUnicode_Check(self->data)) {
-        self->buffer = PyUnicode_AsUTF8AndSize((const char *)self->data, &self->length);
+        self->buffer = (char *)PyUnicode_AsUTF8AndSize(self->data, &self->length);
         if (self->buffer == NULL) {
             return -1;
         }
@@ -133,7 +133,8 @@ int parse_color_str(const char *str, char *target) {
         );
         return -1;
     }
-    memcpy(&str[1], target, 6);
+    memcpy(target, &str[1], 6);
+    return 0;
 }
 
 
@@ -159,11 +160,10 @@ static PyObject* CZINT_render_bmp(
         &angle, &fgcolor_str, &bgcolor_str
     )) return NULL;
 
-    if (parse_color_hex(fgcolor_str, &fgcolor)) return NULL;
-    if (parse_color_hex(bgcolor_str, &bgcolor)) return NULL;
+    if (parse_color_hex(fgcolor_str, (unsigned int *)&fgcolor)) return NULL;
+    if (parse_color_hex(bgcolor_str, (unsigned int *)&bgcolor)) return NULL;
 
     int res = 0;
-    unsigned int bmp_size = 0;
     char *bmp = NULL;
     int bmp_1bit_size = 0;
     Py_BEGIN_ALLOW_THREADS
@@ -176,13 +176,11 @@ static PyObject* CZINT_render_bmp(
 
     unsigned int width = self->symbol->bitmap_width;
     unsigned int height = self->symbol->bitmap_height;
-    const unsigned int bitmap_channel_size = width * height;
-    const unsigned int bitmap_size = bitmap_channel_size * 3;
 
     unsigned char bitmap[height][width + 8];
     memset(&bitmap, 0, height * (width + 8));
 
-    for (int i=0; i<height*width; i++) {
+    for (unsigned int i=0; i<height*width; i++) {
         bitmap[i/width][i%width] = self->symbol->bitmap[i * 3];
     }
 
@@ -245,9 +243,7 @@ static PyObject* CZINT_render_bmp(
 
         char *pixels = &bmp[header_size];
 
-        unsigned char point;
         unsigned int offset = 0;
-
         for(unsigned int y=height-1; y > 0; --y) {
             for(unsigned int x=0; x < width; x+=8) {
                 pixels[offset] = octet2char(&bitmap[y][x]);
@@ -255,7 +251,6 @@ static PyObject* CZINT_render_bmp(
             }
             offset += padding;
         }
-        printf("\n");
     }
 
     Py_END_ALLOW_THREADS
@@ -287,8 +282,8 @@ static PyObject* CZINT_render_svg(
     static char *kwlist[] = {"angle", "fgcolor", "bgcolor", NULL};
 
     int angle = 0;
-    char *fgcolor_str = "000000";
-    char *bgcolor_str = "FFFFFF";
+    char *fgcolor_str = "#000000";
+    char *bgcolor_str = "#FFFFFF";
 
 
     if (!PyArg_ParseTupleAndKeywords(
@@ -296,17 +291,99 @@ static PyObject* CZINT_render_svg(
         &angle, &fgcolor_str, &bgcolor_str
     )) return NULL;
 
-
-    if (parse_color_str(fgcolor_str, &self->symbol->fgcolour)) return NULL;
-    if (parse_color_str(bgcolor_str, &self->symbol->bgcolour)) return NULL;
+    if (parse_color_str(fgcolor_str, (char *)&self->symbol->fgcolour)) return NULL;
+    if (parse_color_str(bgcolor_str, (char *)&self->symbol->bgcolour)) return NULL;
 
     int res = 0;
-    unsigned int size = 0;
-    char *bmp = NULL;
-    int bmp_1bit_size = 0;
+    char *fsvg = NULL;
+    int len_fsvg = 0;
+    int max_len = 4 * 1024 * 1024;
+    struct zint_vector_rect *rect;
+    struct zint_vector_hexagon *hex;
+    struct zint_vector_circle *circle;
+    struct zint_vector_string *string;
+    float ax, ay, bx, by, cx, cy, dx, dy, ex, ey, fx, fy;
+    float radius;
+
+
     Py_BEGIN_ALLOW_THREADS
 
     res = ZBarcode_Encode_and_Buffer_Vector(self->symbol, (unsigned char *)self->buffer, self->length, angle);
+
+    int html_len = strlen((char *)self->symbol->text) + 1;
+    for (unsigned int i = 0; i < strlen((char *)self->symbol->text); i++) {
+        switch(self->symbol->text[i]) {
+            case '>':
+            case '<':
+            case '"':
+            case '&':
+            case '\'':
+                html_len += 6;
+                break;
+        }
+    }
+    char html_string[html_len];
+
+    fsvg = calloc(max_len, sizeof(char *));
+
+    /* Start writing the header */
+    len_fsvg += snprintf(&fsvg[len_fsvg], max_len, "<?xml version=\"1.0\" standalone=\"no\"?>\n");
+
+    len_fsvg += snprintf(&fsvg[len_fsvg], max_len, "<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\"\n");
+    len_fsvg += snprintf(&fsvg[len_fsvg], max_len, "   \"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">\n");
+    len_fsvg += snprintf(&fsvg[len_fsvg], max_len, "<svg width=\"%d\" height=\"%d\" version=\"1.1\"\n", (int) ceil(self->symbol->vector->width), (int) ceil(self->symbol->vector->height));
+    len_fsvg += snprintf(&fsvg[len_fsvg], max_len, "   xmlns=\"http://www.w3.org/2000/svg\">\n");
+    len_fsvg += snprintf(&fsvg[len_fsvg], max_len, "   <desc>Zint Generated Symbol\n");
+    len_fsvg += snprintf(&fsvg[len_fsvg], max_len, "   </desc>\n");
+    len_fsvg += snprintf(&fsvg[len_fsvg], max_len, "\n   <g id=\"barcode\" fill=\"#%s\">\n", self->symbol->fgcolour);
+    len_fsvg += snprintf(&fsvg[len_fsvg], max_len, "      <rect x=\"0\" y=\"0\" width=\"%d\" height=\"%d\" fill=\"#%s\" />\n", (int) ceil(self->symbol->vector->width), (int) ceil(self->symbol->vector->height), self->symbol->bgcolour);
+    rect = self->symbol->vector->rectangles;
+    while (rect) {
+        len_fsvg += snprintf(&fsvg[len_fsvg], max_len-len_fsvg, "      <rect x=\"%.2f\" y=\"%.2f\" width=\"%.2f\" height=\"%.2f\" />\n", rect->x, rect->y, rect->width, rect->height);
+        rect = rect->next;
+    }
+
+    hex = self->symbol->vector->hexagons;
+    while (hex) {
+        radius = hex->diameter / 2.0;
+        ay = hex->y + (1.0 * radius);
+        by = hex->y + (0.5 * radius);
+        cy = hex->y - (0.5 * radius);
+        dy = hex->y - (1.0 * radius);
+        ey = hex->y - (0.5 * radius);
+        fy = hex->y + (0.5 * radius);
+        ax = hex->x;
+        bx = hex->x + (0.86 * radius);
+        cx = hex->x + (0.86 * radius);
+        dx = hex->x;
+        ex = hex->x - (0.86 * radius);
+        fx = hex->x - (0.86 * radius);
+        len_fsvg += snprintf(&fsvg[len_fsvg], max_len-len_fsvg, "      <path d=\"M %.2f %.2f L %.2f %.2f L %.2f %.2f L %.2f %.2f L %.2f %.2f L %.2f %.2f Z\" />\n", ax, ay, bx, by, cx, cy, dx, dy, ex, ey, fx, fy);
+        hex = hex->next;
+    }
+
+    circle = self->symbol->vector->circles;
+    while (circle) {
+        if (circle->colour) {
+            len_fsvg += snprintf(&fsvg[len_fsvg], max_len-len_fsvg, "      <circle cx=\"%.2f\" cy=\"%.2f\" r=\"%.2f\" fill=\"#%s\" />\n", circle->x, circle->y, circle->diameter / 2.0, self->symbol->bgcolour);
+        } else {
+            len_fsvg += snprintf(&fsvg[len_fsvg], max_len-len_fsvg, "      <circle cx=\"%.2f\" cy=\"%.2f\" r=\"%.2f\" fill=\"#%s\" />\n", circle->x, circle->y, circle->diameter / 2.0, self->symbol->fgcolour);
+        }
+        circle = circle->next;
+    }
+
+    string = self->symbol->vector->strings;
+    while (string) {
+        len_fsvg += snprintf(&fsvg[len_fsvg], max_len-len_fsvg, "      <text x=\"%.2f\" y=\"%.2f\" text-anchor=\"middle\"\n", string->x, string->y);
+        len_fsvg += snprintf(&fsvg[len_fsvg], max_len-len_fsvg, "         font-family=\"Helvetica\" font-size=\"%.1f\" fill=\"#%s\" >\n", string->fsize, self->symbol->fgcolour);
+        make_html_friendly(string->text, html_string);
+        len_fsvg += snprintf(&fsvg[len_fsvg], max_len-len_fsvg, "         %s\n", html_string);
+        len_fsvg += snprintf(&fsvg[len_fsvg], max_len-len_fsvg, "      </text>\n");
+        string = string->next;
+    }
+
+    len_fsvg += snprintf(&fsvg[len_fsvg], max_len-len_fsvg, "   </g>\n");
+    len_fsvg += snprintf(&fsvg[len_fsvg], max_len-len_fsvg, "</svg>\n");
 
     Py_END_ALLOW_THREADS
 
@@ -318,12 +395,12 @@ static PyObject* CZINT_render_svg(
         );
         return NULL;
     }
-    PyObject *result = PyBytes_FromStringAndSize(bmp, bmp_1bit_size);
+    PyObject *result = PyBytes_FromStringAndSize(fsvg, len_fsvg);
     if (result == NULL) {
-        free(bmp);
+        free(fsvg);
         return NULL;
     }
-    free(bmp);
+    free(fsvg);
     return result;
 }
 
@@ -348,8 +425,8 @@ static PyMethodDef CZINT_methods[] = {
 static PyTypeObject
 ZINTType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    .tp_name = "ZBarcode",
-    .tp_doc = "ZBarcode c-binding to zint",
+    .tp_name = "Zint",
+    .tp_doc = "Pyzint - c-binding to zint",
     .tp_basicsize = sizeof(CZINT),
     .tp_itemsize = 0,
     .tp_flags = Py_TPFLAGS_DEFAULT,
