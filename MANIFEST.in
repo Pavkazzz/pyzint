@@ -9,3 +9,5 @@ recursive-exclude pyzint/src/zint/backend/tools *
 
 include pyzint/src/*.h
 include README.rst
+
+include pyzint/pyzint.pyi
