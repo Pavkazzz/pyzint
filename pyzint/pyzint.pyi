@@ -111,14 +111,14 @@ BARCODE_RMQR = 145
 class Zint:
     def __init__(
         self,
-        text: Union[str, bytes],
-        barcode_type: int,
-        scale: int = 1,
+        data: Union[str, bytes],
+        kind: int,
         show_text: bool = True
     ): ...
 
     def render_bmp(self, angle: int = 0, bgcolor="#ffffff", fgcolor="#fffff"):
         ...
 
-    def render_svg(self, angle: int = 0, bgcolor="#ffffff", fgcolor="#fffff"):
+    def render_svg(self, angle: int = 0, scale: float = 1.0, bgcolor="#ffffff",
+                   fgcolor="#fffff"):
         ...
