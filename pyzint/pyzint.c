@@ -9,6 +9,7 @@ typedef struct {
     PyObject *data;
     char *human_symbology;
     int show_hrt;
+    float scale;
     unsigned int symbology;
     char *buffer;
     Py_ssize_t length;
@@ -48,15 +49,32 @@ uint8_t octet2char(const unsigned char* src) {
 static int
 CZINT_init(CZINT *self, PyObject *args, PyObject *kwds)
 {
-    static char *kwlist[] = {"data", "kind", "show_text", NULL};
+    static char *kwlist[] = {"data", "kind", "scale", "show_text", NULL};
 
     self->show_hrt = 1;
+    self->scale = 1.0;
 
     if (!PyArg_ParseTupleAndKeywords(
-            args, kwds, "Ob|b", kwlist,
-            &self->data, &self->symbology, &self->show_hrt
+            args, kwds, "Ob|fb", kwlist,
+            &self->data, &self->symbology, &self->scale, &self->show_hrt
     )) return -1;
 
+    if (self->scale <= 0) {
+        PyErr_SetString(
+            PyExc_ValueError,
+            "scale must be greater then zero"
+        );
+        return NULL;
+    }
+
+
+    if (self->scale > 10) {
+        PyErr_SetString(
+            PyExc_ValueError,
+            "scale must be lesser then ten"
+        );
+        return NULL;
+    }
 
     switch (self->symbology) {
         case (BARCODE_CODE11):
@@ -482,6 +500,7 @@ static PyObject* CZINT_render_bmp(
     Py_BEGIN_ALLOW_THREADS
 
     symbol->symbology = self->symbology;
+    symbol->scale = self->scale;
     symbol->show_hrt = self->show_hrt;
 
     res = ZBarcode_Encode_and_Buffer(
@@ -591,23 +610,15 @@ static PyObject* CZINT_render_svg(
     static char *kwlist[] = {"angle", "scale", "fgcolor", "bgcolor", NULL};
 
     int angle = 0;
-    float scale = 1.0;
     char *fgcolor_str = "#000000";
     char *bgcolor_str = "#FFFFFF";
 
 
     if (!PyArg_ParseTupleAndKeywords(
-        args, kwds, "|ifss", kwlist,
-        &angle, &scale, &fgcolor_str, &bgcolor_str
+        args, kwds, "|iss", kwlist,
+        &angle, &fgcolor_str, &bgcolor_str
     )) return NULL;
 
-    if (scale <= 0) {
-        PyErr_SetString(
-            PyExc_ValueError,
-            "scale must be greater then zero"
-        );
-        return NULL;
-    }
 
     struct zint_symbol *symbol = ZBarcode_Create();
 
@@ -623,7 +634,7 @@ static PyObject* CZINT_render_svg(
     if (parse_color_str(bgcolor_str, (char *)&symbol->bgcolour)) return NULL;
 
     symbol->symbology = self->symbology;
-    symbol->scale = scale;
+    symbol->scale = self->scale;
     symbol->show_hrt = self->show_hrt;
 
     int res = 0;
