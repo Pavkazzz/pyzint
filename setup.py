@@ -2,11 +2,11 @@ from setuptools import Extension, setup
 
 setup(
     name="pyzint",
-    version="0.0.4",
+    version="0.0.6",
     description="Python ZINT bindings",
     long_description=open("README.rst").read(),
     packages=["pyzint"],
-    package_data={"pyzint": ["pyzint/pyzint.pyi"], },
+    package_data={"pyzint": ["pyzint.pyi"], },
     ext_modules=[
         Extension(
             "pyzint.pyzint", [

@@ -2,8 +2,13 @@ from io import BytesIO
 
 import pytest
 from PIL import Image, ImageFile
-from pyzint.pyzint import *
 from zbar import Scanner
+
+from pyzint import (
+    BARCODE_EANX, BARCODE_CODE128, BARCODE_UPCE, BARCODE_UPCA,
+    BARCODE_ISBNX, BARCODE_C25INTER, BARCODE_QRCODE,
+    Zint
+)
 
 
 # Cannot decode barcodes:

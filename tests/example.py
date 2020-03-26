@@ -4,7 +4,7 @@ from pyzint.pyzint import Zint, BARCODE_RSS_EXP
 
 
 def png():
-    z = Zint("[255]1111111111122", BARCODE_RSS_EXP, scale=i)
+    z = Zint("[255]1111111111122", BARCODE_RSS_EXP)
     data = z.render_bmp()
     with open("f.bmp", "wb+") as fp:
         fp.write(data)
