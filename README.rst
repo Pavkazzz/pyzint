@@ -19,3 +19,22 @@ pyzint
 
 
 Python c-api binding to zint c library
+
+
+Example
+=======
+
+Create main object zint
+.. code-block:: python
+z = Zint("[255]1111111111122", BARCODE_RSS_EXP)
+..
+
+Generate bmp image
+.. code-block:: python
+z.render_bmp()
+..
+
+Generate svg image
+.. code-block:: python
+z.render_bmp()
+..
