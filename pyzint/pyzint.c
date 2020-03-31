@@ -11,6 +11,10 @@ typedef struct {
     int show_hrt;
     float scale;
     unsigned int symbology;
+    int option_1;
+    int option_2;
+    int option_3;
+    int fontsize;
     char *buffer;
     Py_ssize_t length;
 } CZINT;
@@ -49,14 +53,21 @@ uint8_t octet2char(const unsigned char* src) {
 static int
 CZINT_init(CZINT *self, PyObject *args, PyObject *kwds)
 {
-    static char *kwlist[] = {"data", "kind", "scale", "show_text", NULL};
+    static char *kwlist[] = {
+      "data", "kind", "scale", "show_text", "option_1", "option_2", "option_3", "fontsize", NULL
+    };
 
     self->show_hrt = 1;
     self->scale = 1.0;
+    self->option_1 = -1;
+    self->option_2 = 0;
+    self->option_3 = 928; // PDF_MAX
+    self->fontsize = 8;
 
     if (!PyArg_ParseTupleAndKeywords(
-            args, kwds, "Ob|fb", kwlist,
-            &self->data, &self->symbology, &self->scale, &self->show_hrt
+            args, kwds, "Ob|fbiiii", kwlist,
+            &self->data, &self->symbology, &self->scale, &self->show_hrt, &self->option_1, &self->option_2,
+            &self->option_3, &self->fontsize
     )) return -1;
 
     if (self->scale <= 0) {
@@ -502,6 +513,10 @@ static PyObject* CZINT_render_bmp(
     symbol->symbology = self->symbology;
     symbol->scale = self->scale;
     symbol->show_hrt = self->show_hrt;
+    symbol->option_1 = self->option_1;
+    symbol->option_2 = self->option_2;
+    symbol->option_3 = self->option_3;
+    symbol->fontsize = self->fontsize;
 
     res = ZBarcode_Encode_and_Buffer(
         symbol,
@@ -566,9 +581,8 @@ static PyObject* CZINT_render_bmp(
         char *pixels = &bmp[header_size];
 
         {
-            unsigned int y, x;
-            for(y=height-1; y > 0; --y) {
-                for(x=0; x < width; x+=8) {
+            for(int y=height-1; y >= 0; y--) {
+                for(int x=0; x < width; x+=8) {
                     pixels[offset] = octet2char(&bitmap[y][x]);
                     offset++;
                 }
@@ -636,6 +650,10 @@ static PyObject* CZINT_render_svg(
     symbol->symbology = self->symbology;
     symbol->scale = self->scale;
     symbol->show_hrt = self->show_hrt;
+    symbol->option_1 = self->option_1;
+    symbol->option_2 = self->option_2;
+    symbol->option_3 = self->option_3;
+    symbol->fontsize = self->fontsize;
 
     int res = 0;
     char *fsvg = NULL;

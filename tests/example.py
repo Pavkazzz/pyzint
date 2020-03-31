@@ -1,10 +1,10 @@
 from PIL import Image, ImageFile
 
-from pyzint.pyzint import Zint, BARCODE_RSS_EXP
+from pyzint.pyzint import Zint, BARCODE_RSS_EXP, BARCODE_UPCA
 
 
 def png():
-    z = Zint("[255]1111111111122", BARCODE_RSS_EXP)
+    z = Zint("33123456", BARCODE_UPCA)
     data = z.render_bmp()
     with open("f.bmp", "wb+") as fp:
         fp.write(data)

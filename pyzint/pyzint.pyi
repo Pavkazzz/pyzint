@@ -113,7 +113,11 @@ class Zint:
         data: Union[str, bytes],
         kind: int,
         scale: float = 1.0,
-        show_text: bool = True
+        show_text: bool = True,
+        option_1: int = -1,
+        option_2: int = 0,
+        option_3: int = 928,
+        fontsize: int = 8
     ): ...
 
     def render_bmp(self, angle: int = 0, bgcolor="#ffffff", fgcolor="#fffff"):
