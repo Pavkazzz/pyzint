@@ -2,7 +2,7 @@ from setuptools import Extension, setup
 
 setup(
     name="pyzint",
-    version="0.0.6",
+    version="0.0.7",
     description="Python ZINT bindings",
     long_description=open("README.rst").read(),
     packages=["pyzint"],

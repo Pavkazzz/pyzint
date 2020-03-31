@@ -1,6 +1,6 @@
 from PIL import Image, ImageFile
 
-from pyzint.pyzint import Zint, BARCODE_RSS_EXP
+from pyzint.pyzint import Zint, BARCODE_RSS_EXP, BARCODE_ISBNX, BARCODE_EAN14
 
 
 def png():

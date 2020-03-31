@@ -653,83 +653,84 @@ static PyObject* CZINT_render_svg(
 
     res = ZBarcode_Encode_and_Buffer_Vector(symbol, (unsigned char *)self->buffer, self->length, angle);
 
-    int html_len = strlen((char *)symbol->text) + 1;
+    if (res == 0) {
 
-    {
-        unsigned int text_length = strlen((char *)symbol->text);
-        for(unsigned int i = 0; i < text_length; i++) {
-            switch(symbol->text[i]) {
-                case '>':
-                case '<':
-                case '"':
-                case '&':
-                case '\'':
-                    html_len += 6;
-                    break;
+        int html_len = strlen((char *)symbol->text) + 1;
+
+        {
+            unsigned int text_length = strlen((char *)symbol->text);
+            for(unsigned int i = 0; i < text_length; i++) {
+                switch(symbol->text[i]) {
+                    case '>':
+                    case '<':
+                    case '"':
+                    case '&':
+                    case '\'':
+                        html_len += 6;
+                        break;
+                }
             }
         }
-    }
-    char html_string[html_len];
+        char html_string[html_len];
 
-    fsvg = calloc(max_len, sizeof(char *));
+        fsvg = calloc(max_len, sizeof(char *));
 
-    /* Start writing the header */
-    len_fsvg += snprintf(&fsvg[len_fsvg], max_len, "<?xml version=\"1.0\" standalone=\"no\"?>\n");
+        /* Start writing the header */
+        len_fsvg += snprintf(&fsvg[len_fsvg], max_len, "<?xml version=\"1.0\" standalone=\"no\"?>\n");
 
-    len_fsvg += snprintf(&fsvg[len_fsvg], max_len, "<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\" \"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">\n");
-    len_fsvg += snprintf(&fsvg[len_fsvg], max_len, "<svg width=\"%d\" height=\"%d\" version=\"1.1\" xmlns=\"http://www.w3.org/2000/svg\">\n", (int) ceil(symbol->vector->width), (int) ceil(symbol->vector->height));
-    len_fsvg += snprintf(&fsvg[len_fsvg], max_len, "<desc>Zint Generated Symbol via pyzint</desc>\n");
-    len_fsvg += snprintf(&fsvg[len_fsvg], max_len, "<g id=\"barcode\" fill=\"#%s\">\n", symbol->fgcolour);
-    len_fsvg += snprintf(&fsvg[len_fsvg], max_len, "<rect x=\"0\" y=\"0\" width=\"%d\" height=\"%d\" fill=\"#%s\" />\n", (int) ceil(symbol->vector->width), (int) ceil(symbol->vector->height), symbol->bgcolour);
-    rect = symbol->vector->rectangles;
-    while (rect) {
-        len_fsvg += snprintf(&fsvg[len_fsvg], max_len-len_fsvg, "<rect x=\"%.2f\" y=\"%.2f\" width=\"%.2f\" height=\"%.2f\" />\n", rect->x, rect->y, rect->width, rect->height);
-        rect = rect->next;
-    }
-
-    hex = symbol->vector->hexagons;
-    while (hex) {
-        radius = hex->diameter / 2.0;
-        ay = hex->y + (1.0 * radius);
-        by = hex->y + (0.5 * radius);
-        cy = hex->y - (0.5 * radius);
-        dy = hex->y - (1.0 * radius);
-        ey = hex->y - (0.5 * radius);
-        fy = hex->y + (0.5 * radius);
-        ax = hex->x;
-        bx = hex->x + (0.86 * radius);
-        cx = hex->x + (0.86 * radius);
-        dx = hex->x;
-        ex = hex->x - (0.86 * radius);
-        fx = hex->x - (0.86 * radius);
-        len_fsvg += snprintf(&fsvg[len_fsvg], max_len-len_fsvg, "<path d=\"M %.2f %.2f L %.2f %.2f L %.2f %.2f L %.2f %.2f L %.2f %.2f L %.2f %.2f Z\" \n/>", ax, ay, bx, by, cx, cy, dx, dy, ex, ey, fx, fy);
-        hex = hex->next;
-    }
-
-    circle = symbol->vector->circles;
-    while (circle) {
-        if (circle->colour) {
-            len_fsvg += snprintf(&fsvg[len_fsvg], max_len-len_fsvg, "<circle cx=\"%.2f\" cy=\"%.2f\" r=\"%.2f\" fill=\"#%s\" \n/>", circle->x, circle->y, circle->diameter / 2.0, symbol->bgcolour);
-        } else {
-            len_fsvg += snprintf(&fsvg[len_fsvg], max_len-len_fsvg, "<circle cx=\"%.2f\" cy=\"%.2f\" r=\"%.2f\" fill=\"#%s\" \n/>", circle->x, circle->y, circle->diameter / 2.0, symbol->fgcolour);
+        len_fsvg += snprintf(&fsvg[len_fsvg], max_len, "<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\" \"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">\n");
+        len_fsvg += snprintf(&fsvg[len_fsvg], max_len, "<svg width=\"%d\" height=\"%d\" version=\"1.1\" xmlns=\"http://www.w3.org/2000/svg\">\n", (int) ceil(symbol->vector->width), (int) ceil(symbol->vector->height));
+        len_fsvg += snprintf(&fsvg[len_fsvg], max_len, "<desc>Zint Generated Symbol via pyzint</desc>\n");
+        len_fsvg += snprintf(&fsvg[len_fsvg], max_len, "<g id=\"barcode\" fill=\"#%s\">\n", symbol->fgcolour);
+        len_fsvg += snprintf(&fsvg[len_fsvg], max_len, "<rect x=\"0\" y=\"0\" width=\"%d\" height=\"%d\" fill=\"#%s\" />\n", (int) ceil(symbol->vector->width), (int) ceil(symbol->vector->height), symbol->bgcolour);
+        rect = symbol->vector->rectangles;
+        while (rect) {
+            len_fsvg += snprintf(&fsvg[len_fsvg], max_len-len_fsvg, "<rect x=\"%.2f\" y=\"%.2f\" width=\"%.2f\" height=\"%.2f\" />\n", rect->x, rect->y, rect->width, rect->height);
+            rect = rect->next;
         }
-        circle = circle->next;
-    }
 
-    string = symbol->vector->strings;
-    while (string) {
-        len_fsvg += snprintf(&fsvg[len_fsvg], max_len-len_fsvg, "<text x=\"%.2f\" y=\"%.2f\" text-anchor=\"middle\" ", string->x, string->y);
-        len_fsvg += snprintf(&fsvg[len_fsvg], max_len-len_fsvg, "font-family=\"Helvetica\" font-size=\"%.1f\" fill=\"#%s\">", string->fsize, symbol->fgcolour);
-        make_html_friendly(string->text, html_string);
-        len_fsvg += snprintf(&fsvg[len_fsvg], max_len-len_fsvg, " %s ", html_string);
-        len_fsvg += snprintf(&fsvg[len_fsvg], max_len-len_fsvg, "</text>");
-        string = string->next;
-    }
+        hex = symbol->vector->hexagons;
+        while (hex) {
+            radius = hex->diameter / 2.0;
+            ay = hex->y + (1.0 * radius);
+            by = hex->y + (0.5 * radius);
+            cy = hex->y - (0.5 * radius);
+            dy = hex->y - (1.0 * radius);
+            ey = hex->y - (0.5 * radius);
+            fy = hex->y + (0.5 * radius);
+            ax = hex->x;
+            bx = hex->x + (0.86 * radius);
+            cx = hex->x + (0.86 * radius);
+            dx = hex->x;
+            ex = hex->x - (0.86 * radius);
+            fx = hex->x - (0.86 * radius);
+            len_fsvg += snprintf(&fsvg[len_fsvg], max_len-len_fsvg, "<path d=\"M %.2f %.2f L %.2f %.2f L %.2f %.2f L %.2f %.2f L %.2f %.2f L %.2f %.2f Z\" \n/>", ax, ay, bx, by, cx, cy, dx, dy, ex, ey, fx, fy);
+            hex = hex->next;
+        }
 
-    len_fsvg += snprintf(&fsvg[len_fsvg], max_len-len_fsvg, "</g>");
-    len_fsvg += snprintf(&fsvg[len_fsvg], max_len-len_fsvg, "</svg>");
+        circle = symbol->vector->circles;
+        while (circle) {
+            if (circle->colour) {
+                len_fsvg += snprintf(&fsvg[len_fsvg], max_len-len_fsvg, "<circle cx=\"%.2f\" cy=\"%.2f\" r=\"%.2f\" fill=\"#%s\" \n/>", circle->x, circle->y, circle->diameter / 2.0, symbol->bgcolour);
+            } else {
+                len_fsvg += snprintf(&fsvg[len_fsvg], max_len-len_fsvg, "<circle cx=\"%.2f\" cy=\"%.2f\" r=\"%.2f\" fill=\"#%s\" \n/>", circle->x, circle->y, circle->diameter / 2.0, symbol->fgcolour);
+            }
+            circle = circle->next;
+        }
 
-    if (res == 0) {
+        string = symbol->vector->strings;
+        while (string) {
+            len_fsvg += snprintf(&fsvg[len_fsvg], max_len-len_fsvg, "<text x=\"%.2f\" y=\"%.2f\" text-anchor=\"middle\" ", string->x, string->y);
+            len_fsvg += snprintf(&fsvg[len_fsvg], max_len-len_fsvg, "font-family=\"Helvetica\" font-size=\"%.1f\" fill=\"#%s\">", string->fsize, symbol->fgcolour);
+            make_html_friendly(string->text, html_string);
+            len_fsvg += snprintf(&fsvg[len_fsvg], max_len-len_fsvg, " %s ", html_string);
+            len_fsvg += snprintf(&fsvg[len_fsvg], max_len-len_fsvg, "</text>");
+            string = string->next;
+        }
+
+        len_fsvg += snprintf(&fsvg[len_fsvg], max_len-len_fsvg, "</g>");
+        len_fsvg += snprintf(&fsvg[len_fsvg], max_len-len_fsvg, "</svg>");
+
         ZBarcode_Clear(symbol);
         ZBarcode_Delete(symbol);
     }
