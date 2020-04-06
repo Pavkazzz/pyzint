@@ -20,7 +20,7 @@ from pyzint import (
 # (BARCODE_PDF417, "This is a PDF417", '', 'ZBAR_PDF417', 'PDF-417'),
 
 
-@pytest.mark.skip_if(Scanner is None)
+@pytest.mark.skipif(Scanner is None, reason="zbar is not installed")
 @pytest.mark.parametrize("type,value, checksum, zbar_type, exp_type", [
     (BARCODE_EANX, "00090311017", '2', 'ZBAR_UPCA', 'UPC-A'),
     (BARCODE_EANX, "978020137962", '4', 'ZBAR_EAN13', 'EAN-13'),

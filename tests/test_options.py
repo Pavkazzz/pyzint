@@ -23,7 +23,7 @@ options = pytest.mark.parametrize("option_1, option_2, size", [
 def test_bmp_exp_cyzint(option_1, option_2, size):
     z = Zint(
         "Barcode QRCode", BARCODE_QRCODE,
-        option_1=option_1, option_2=option_2
+        option_1, option_2
     )
     barcode = z.render_bmp()
     with BytesIO(barcode) as fp:
@@ -38,7 +38,7 @@ def test_bmp_exp_cyzint(option_1, option_2, size):
 def test_svg_exp_cyzint(option_1, option_2, size):
     z = Zint(
         "Barcode QRCode", BARCODE_QRCODE,
-        option_1=option_1, option_2=option_2
+        option_1, option_2
     )
     barcode = z.render_svg()
     xml = ET.fromstring(barcode.decode())
