@@ -967,7 +967,7 @@ static PyTypeObject
 ZINTType = {
     PyVarObject_HEAD_INIT(NULL, 0)
     .tp_name = "Zint",
-    .tp_doc = "Pyzint - c-binding to zint",
+    .tp_doc = "zint - python bindings for zint",
     .tp_basicsize = sizeof(CZINT),
     .tp_itemsize = 0,
     .tp_flags = Py_TPFLAGS_DEFAULT,
@@ -982,12 +982,12 @@ ZINTType = {
 
 static PyModuleDef pyzint_module = {
     PyModuleDef_HEAD_INIT,
-    .m_name = "pyzint",
-    .m_doc = "Pyzint binding",
+    .m_name = "zint",
+    .m_doc = "zint c binding",
     .m_size = -1,
 };
 
-PyMODINIT_FUNC PyInit_pyzint(void) {
+PyMODINIT_FUNC PyInit_zint(void) {
     static PyTypeObject* ZINTTypeP = &ZINTType;
     PyEval_InitThreads();
 

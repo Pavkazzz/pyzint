@@ -1,17 +1,25 @@
 import pytest
 
-from pyzint import (
-    BARCODE_UPCE, BARCODE_UPCA, BARCODE_ITF14, BARCODE_ISBNX, BARCODE_EAN14,
+from pyzint.zint import (
+    BARCODE_EAN14,
+    BARCODE_ISBNX,
+    BARCODE_ITF14,
+    BARCODE_UPCA,
+    BARCODE_UPCE,
     Zint,
 )
 
-bad_barcodes = pytest.mark.parametrize("type,value", [
-    (BARCODE_EAN14, "97802013796251111111"),
-    (BARCODE_UPCE, "aaaaaa"),
-    (BARCODE_UPCA, "aaaaaa"),
-    (BARCODE_ITF14, "aaaaa"),
-    (BARCODE_ISBNX, "22222"),
-])
+
+bad_barcodes = pytest.mark.parametrize(
+    "type,value",
+    [
+        (BARCODE_EAN14, "97802013796251111111"),
+        (BARCODE_UPCE, "aaaaaa"),
+        (BARCODE_UPCA, "aaaaaa"),
+        (BARCODE_ITF14, "aaaaa"),
+        (BARCODE_ISBNX, "22222"),
+    ],
+)
 
 
 @bad_barcodes
