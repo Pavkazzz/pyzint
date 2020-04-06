@@ -453,7 +453,7 @@ int parse_color_str(const char *str, char *target) {
 PyDoc_STRVAR(CZINT_render_bmp_docstring,
     "Render bmp barcode. Image will 1bit color depth "
     "and user defined palette.\n\n"
-    "    ZBarcode('data').render_bmp(angle: int = 0) -> bytes"
+    "    Zint('data', BARCODE_QRCODE).render_bmp(angle: int = 0, fgcolor: str = '#FFFFFF', bgcolor: str = '#000000') -> bytes"
 );
 static PyObject* CZINT_render_bmp(
     CZINT *self, PyObject *args, PyObject *kwds
@@ -619,7 +619,7 @@ static PyObject* CZINT_render_bmp(
 
 PyDoc_STRVAR(CZINT_render_svg_docstring,
     "Render svg barcode.\n\n"
-    "    ZBarcode('data').render_svg(angle: int = 0) -> bytes"
+    "    Zint('data', BARCODE_QRCODE).render_svg(angle: int = 0, fgcolor: str = '#FFFFFF', bgcolor: str = '#000000') -> bytes"
 );
 static PyObject* CZINT_render_svg(
     CZINT *self, PyObject *args, PyObject *kwds
@@ -779,11 +779,24 @@ static PyObject* CZINT_render_svg(
     return result;
 }
 
+
+PyDoc_STRVAR(CZINT_human_symbology_docstring,
+    "Return human readable barcode kind.\n\n"
+    "    Zint('data', BARCODE_QRCODE).human_symbology() -> str"
+);
 static int
 CZINT_human_symbology(CZINT *self, PyObject *args, PyObject *kwds)
 {
-    return self->human_symbology;
+    if (self->human_symbology == NULL) {
+        PyErr_SetString(
+            PyExc_ValueError,
+            "symbology is empty"
+        );
+        return NULL;
+    }
+    return PyUnicode_FromString(self->human_symbology);
 }
+
 static PyMethodDef CZINT_methods[] = {
     {
         "render_bmp",
@@ -795,6 +808,12 @@ static PyMethodDef CZINT_methods[] = {
         (PyCFunction) CZINT_render_svg, METH_VARARGS | METH_KEYWORDS,
         CZINT_render_svg_docstring
     },
+    {
+        "human_symbology",
+        (PyCFunction) CZINT_human_symbology, METH_NOARGS,
+        CZINT_human_symbology_docstring
+    },
+
     {NULL}  /* Sentinel */
 
 };

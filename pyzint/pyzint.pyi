@@ -1,4 +1,4 @@
-from typing import Union, Type
+from typing import Union
 
 # Tbarcode 7 codes
 BARCODE_CODE11 = 1
@@ -106,6 +106,7 @@ BARCODE_UPNQR = 143
 BARCODE_ULTRA = 144
 BARCODE_RMQR = 145
 
+
 # noinspection PyPropertyDefinition
 class Zint:
     def __init__(
@@ -120,8 +121,11 @@ class Zint:
         fontsize: int = 8
     ): ...
 
-    def render_bmp(self, angle: int = 0, bgcolor="#ffffff", fgcolor="#fffff"):
+    def render_bmp(self, angle: int = 0, bgcolor="#FFFFFF", fgcolor="#000000"):
         ...
 
-    def render_svg(self, angle: int = 0, bgcolor="#ffffff", fgcolor="#fffff"):
+    def render_svg(self, angle: int = 0, bgcolor="#FFFFFF", fgcolor="#000000"):
+        ...
+
+    def human_symbology(self) -> str:
         ...
