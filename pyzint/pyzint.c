@@ -27,8 +27,8 @@ typedef struct {
     int symbology;
     int whitespace_width;
     char *buffer;
-    Py_buffer *primary;
-    Py_buffer *text;
+    Py_buffer primary;
+    Py_buffer text;
     Py_ssize_t length;
 } CZINT;
 
@@ -372,10 +372,9 @@ CZINT_init(CZINT *self, PyObject *args, PyObject *kwds)
 {
     static char *kwlist[] = {
       "data", "kind", "option_1", "option_2", "option_3",
-      "scale", "show_text",
-      "fontsize", "height", "whitespace_width",
-      "border_width", "input_mode" "eci",
-      "primary", "text", "dot_size", NULL
+      "scale", "show_text", "fontsize", "height", "whitespace_width",
+      "border_width", "eci", "primary", "text", "dot_size",
+       NULL
     };
 
     self->show_hrt = 1;
@@ -388,27 +387,33 @@ CZINT_init(CZINT *self, PyObject *args, PyObject *kwds)
     self->fontsize = CZINT_DEFAULT_FONT_SIZE;
     self->height = CZINT_DEFAULT_HEIGHT;
     self->eci = CZINT_DEFAULT_ECI;
-    self->primary = NULL;
-    self->text = NULL;
+//    self->primary = NULL;
+//    self->text = NULL;
     self->dot_size = CZINT_DEFAULT_DOT_SIZE;
 
     if (!PyArg_ParseTupleAndKeywords(
-            args, kwds, "Ob|iii$fbiBBBBs*fs*", kwlist,
+            args, kwds, "Ob|iii$fbiBBBBs*s*f", kwlist,
             &self->data,
             &self->symbology,
+
             &self->option_1,
             &self->option_2,
             &self->option_3,
+
             &self->scale,
             &self->show_hrt,
             &self->fontsize,
+
             &self->height,
             &self->whitespace_width,
             &self->border_width,
+
             &self->eci,
+
             &self->primary,
-            &self->dot_size,
-            &self->text
+
+            &self->text,
+            &self->dot_size
     )) return -1;
 
     if (self->scale <= CZINT_SCALE_MIN) {
@@ -577,12 +582,12 @@ static PyObject* CZINT_render_bmp(
     symbol->eci = self->eci;
     symbol->dot_size = self->dot_size;
 
-    if (self->primary != NULL) {
-        memcpy(symbol->primary, self->primary->buf, self->primary->len);
+    if (self->primary.len > 0) {
+        memcpy(symbol->primary, self->primary.buf, self->primary.len);
     }
 
-    if (self->text != NULL) {
-        memcpy(symbol->text, self->text->buf, self->text->len);
+    if (self->text.len > 0) {
+        memcpy(symbol->text, self->text.buf, self->text.len);
     }
 
     res = ZBarcode_Encode_and_Buffer(
@@ -727,12 +732,12 @@ static PyObject* CZINT_render_svg(
     symbol->eci = self->eci;
     symbol->dot_size = self->dot_size;
 
-    if (self->primary != NULL) {
-        memcpy(symbol->primary, self->primary->buf, self->primary->len);
+    if (self->primary.len > 0) {
+        memcpy(symbol->primary, self->primary.buf, self->primary.len);
     }
 
-    if (self->text != NULL) {
-        memcpy(symbol->text, self->text->buf, self->text->len);
+    if (self->text.len > 0) {
+        memcpy(symbol->text, self->text.buf, self->text.len);
     }
 
 

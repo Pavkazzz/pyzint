@@ -1,14 +1,15 @@
 import xml.etree.ElementTree as ET
 from io import BytesIO
 
+import pytest
 from PIL import Image
 from pyzint.pyzint import Zint, BARCODE_RSS_EXP
 
 
 def test_params():
-    option_1 = 43
-    option_2 = 67
-    option_3 = 886
+    option_1 = 0
+    option_2 = 0
+    option_3 = 0
     scale = 9.76
     show_text = False
     fontsize = 10
@@ -31,8 +32,8 @@ def test_params():
         whitespace_width=whitespace_width,
         border_width=border_width,
         eci=eci,
-        primary=primary,
         text=text,
+        primary=primary,
         dot_size=dot_size
     )
 
@@ -41,15 +42,63 @@ def test_params():
     assert z.option_2 == option_2
     assert z.option_3 == option_3
 
-    assert z.scale == scale
-    assert z.primary == primary
+    assert z.scale == pytest.approx(scale)
     assert z.fontsize == fontsize
     assert z.height == height
     assert z.whitespace_width == whitespace_width
     assert z.border_width == border_width
-    assert z.text == text
     assert z.show_text == show_text
     assert z.eci == eci
+    assert z.text == text
+    assert z.primary == primary
+    assert z.dot_size == dot_size
+
+
+def test_params_bytes():
+    option_1 = 0
+    option_2 = 0
+    option_3 = 0
+    scale = 9.76
+    show_text = False
+    fontsize = 10
+    height = 74
+    whitespace_width = 2
+    border_width = 3
+    eci = 4
+    primary = b"foo"
+    text = b"bar"
+    dot_size = 5
+
+    z = Zint(
+        "[255]11111111111222",
+        BARCODE_RSS_EXP,
+        option_1, option_2, option_3,
+        scale=scale,
+        show_text=show_text,
+        fontsize=fontsize,
+        height=height,
+        whitespace_width=whitespace_width,
+        border_width=border_width,
+        eci=eci,
+        text=text,
+        primary=primary,
+        dot_size=dot_size
+    )
+
+    assert z.data == "[255]11111111111222"
+    assert z.option_1 == option_1
+    assert z.option_2 == option_2
+    assert z.option_3 == option_3
+
+    assert z.scale == pytest.approx(scale)
+    assert z.fontsize == fontsize
+    assert z.height == height
+    assert z.whitespace_width == whitespace_width
+    assert z.border_width == border_width
+    assert z.show_text == show_text
+    assert z.eci == eci
+    assert z.text == text.decode()
+    assert z.primary == primary.decode()
     assert z.dot_size == dot_size
 
 
