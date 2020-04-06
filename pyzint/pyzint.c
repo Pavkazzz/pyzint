@@ -849,11 +849,6 @@ static PyObject* CZINT_render_svg(
 
     PyObject *result = PyBytes_FromStringAndSize(fsvg, len_fsvg);
     free(fsvg);
-
-    if (result == NULL) {
-        return NULL;
-    }
-
     return result;
 }
 
