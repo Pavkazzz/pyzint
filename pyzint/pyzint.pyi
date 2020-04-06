@@ -167,3 +167,9 @@ class Zint:
 
     @property
     def text(self) -> str: ...
+
+    @property
+    def whtespace_width(self) -> int: ...
+
+    @property
+    def border_width(self) -> int: ...

@@ -371,7 +371,8 @@ static int
 CZINT_init(CZINT *self, PyObject *args, PyObject *kwds)
 {
     static char *kwlist[] = {
-      "data", "kind", "scale", "show_text",
+      "data", "kind", "option_1", "option_2", "option_3",
+      "scale", "show_text",
       "fontsize", "height", "whitespace_width",
       "border_width", "input_mode" "eci",
       "primary", "text", "dot_size", NULL
@@ -934,6 +935,17 @@ CZINT_members[] = {
         offsetof(CZINT, text),
         READONLY, "Human readable text, which usually consists of input data plus one more check digit"
     },
+    {
+        "whitespace_width", T_INT,
+        offsetof(CZINT, whitespace_width),
+        READONLY, "Whtespace width"
+    },
+    {
+        "border_width", T_INT,
+        offsetof(CZINT, border_width),
+        READONLY, "Border width"
+    },
+
     {NULL}  /* Sentinel */
 };
 
