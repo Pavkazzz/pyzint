@@ -1,8 +1,11 @@
-#include <Python.h>
 #include "endianness.h"
 #include "src/zint/backend/zint.h"
 #include "src/zint/backend/common.h"
 #include "src/zint/backend/gb18030.h"
+
+#define PY_SSIZE_T_CLEAN
+#include <Python.h>
+#include <structmember.h>
 
 extern void make_html_friendly(unsigned char * string, char * html_version);
 
@@ -10,14 +13,22 @@ typedef struct {
     PyObject_HEAD
     PyObject *data;
     char *human_symbology;
-    int show_hrt;
+    float dot_size;
     float scale;
-    unsigned int symbology;
+    int border_width;
+    int eci;
+    int fontsize;
+    int height;
+    int input_mode;
     int option_1;
     int option_2;
     int option_3;
-    int fontsize;
+    int show_hrt;
+    int symbology;
+    int whitespace_width;
     char *buffer;
+    Py_buffer *primary;
+    Py_buffer *text;
     Py_ssize_t length;
 } CZINT;
 
@@ -52,326 +63,290 @@ uint8_t octet2char(const unsigned char* src) {
     return result;
 }
 
-static int
-CZINT_init(CZINT *self, PyObject *args, PyObject *kwds)
-{
-    static char *kwlist[] = {
-      "data", "kind", "scale", "show_text", "option_1", "option_2", "option_3", "fontsize", NULL
-    };
-
-    self->show_hrt = 1;
-    self->scale = 1.0;
-    self->option_1 = -1;
-    self->option_2 = 0;
-    self->option_3 = 928; // PDF_MAX
-    self->fontsize = 8;
-
-    if (!PyArg_ParseTupleAndKeywords(
-            args, kwds, "Ob|fbiiii", kwlist,
-            &self->data, &self->symbology, &self->scale, &self->show_hrt, &self->option_1, &self->option_2,
-            &self->option_3, &self->fontsize
-    )) return -1;
-
-    if (self->scale <= 0) {
-        PyErr_SetString(
-            PyExc_ValueError,
-            "scale must be greater then zero"
-        );
-        return NULL;
-    }
-
-
-    if (self->scale > 10) {
-        PyErr_SetString(
-            PyExc_ValueError,
-            "scale must be lesser then ten"
-        );
-        return NULL;
-    }
-
+static int set_human_symbology(CZINT* self) {
     switch (self->symbology) {
         case (BARCODE_CODE11):
             self->human_symbology = "code11";
-            break;
+            return 0;
         case (BARCODE_C25MATRIX):
             self->human_symbology = "c25matrix";
-            break;
+            return 0;
         case (BARCODE_C25INTER):
             self->human_symbology = "c25inter";
-            break;
+            return 0;
         case (BARCODE_C25IATA):
             self->human_symbology = "c25iata";
-            break;
+            return 0;
         case (BARCODE_C25LOGIC):
             self->human_symbology = "c25logic";
-            break;
+            return 0;
         case (BARCODE_C25IND):
             self->human_symbology = "c25ind";
-            break;
+            return 0;
         case (BARCODE_CODE39):
             self->human_symbology = "code39";
-            break;
+            return 0;
         case (BARCODE_EXCODE39):
             self->human_symbology = "excode39";
-            break;
+            return 0;
         case (BARCODE_EANX):
             self->human_symbology = "eanx";
-            break;
+            return 0;
         case (BARCODE_EANX_CHK):
             self->human_symbology = "eanx_chk";
-            break;
+            return 0;
         case (BARCODE_EAN128):
             self->human_symbology = "ean128";
-            break;
+            return 0;
         case (BARCODE_CODABAR):
             self->human_symbology = "codabar";
-            break;
+            return 0;
         case (BARCODE_CODE128):
             self->human_symbology = "code128";
-            break;
+            return 0;
         case (BARCODE_DPLEIT):
             self->human_symbology = "dpleit";
-            break;
+            return 0;
         case (BARCODE_DPIDENT):
             self->human_symbology = "dpident";
-            break;
+            return 0;
         case (BARCODE_CODE16K):
             self->human_symbology = "code16k";
-            break;
+            return 0;
         case (BARCODE_CODE49):
             self->human_symbology = "code49";
-            break;
+            return 0;
         case (BARCODE_CODE93):
             self->human_symbology = "code93";
-            break;
+            return 0;
         case (BARCODE_FLAT):
             self->human_symbology = "flat";
-            break;
+            return 0;
         case (BARCODE_RSS14):
             self->human_symbology = "rss14";
-            break;
+            return 0;
         case (BARCODE_RSS_LTD):
             self->human_symbology = "rss_ltd";
-            break;
+            return 0;
         case (BARCODE_RSS_EXP):
             self->human_symbology = "rss_exp";
-            break;
+            return 0;
         case (BARCODE_TELEPEN):
             self->human_symbology = "telepen";
-            break;
+            return 0;
         case (BARCODE_UPCA):
             self->human_symbology = "upca";
-            break;
+            return 0;
         case (BARCODE_UPCA_CHK):
             self->human_symbology = "upca_chk";
-            break;
+            return 0;
         case (BARCODE_UPCE):
             self->human_symbology = "upce";
-            break;
+            return 0;
         case (BARCODE_UPCE_CHK):
             self->human_symbology = "upce_chk";
-            break;
+            return 0;
         case (BARCODE_POSTNET):
             self->human_symbology = "postnet";
-            break;
+            return 0;
         case (BARCODE_MSI_PLESSEY):
             self->human_symbology = "msi_plessey";
-            break;
+            return 0;
         case (BARCODE_FIM):
             self->human_symbology = "fim";
-            break;
+            return 0;
         case (BARCODE_LOGMARS):
             self->human_symbology = "logmars";
-            break;
+            return 0;
         case (BARCODE_PHARMA):
             self->human_symbology = "pharma";
-            break;
+            return 0;
         case (BARCODE_PZN):
             self->human_symbology = "pzn";
-            break;
+            return 0;
         case (BARCODE_PHARMA_TWO):
             self->human_symbology = "pharma_two";
-            break;
+            return 0;
         case (BARCODE_PDF417):
             self->human_symbology = "pdf417";
-            break;
+            return 0;
         case (BARCODE_PDF417TRUNC):
             self->human_symbology = "pdf417trunc";
-            break;
+            return 0;
         case (BARCODE_MAXICODE):
             self->human_symbology = "maxicode";
-            break;
+            return 0;
         case (BARCODE_QRCODE):
             self->human_symbology = "qrcode";
-            break;
+            return 0;
         case (BARCODE_CODE128B):
             self->human_symbology = "code128b";
-            break;
+            return 0;
         case (BARCODE_AUSPOST):
             self->human_symbology = "auspost";
-            break;
+            return 0;
         case (BARCODE_AUSREPLY):
             self->human_symbology = "ausreply";
-            break;
+            return 0;
         case (BARCODE_AUSROUTE):
             self->human_symbology = "ausroute";
-            break;
+            return 0;
         case (BARCODE_AUSREDIRECT):
             self->human_symbology = "ausredirect";
-            break;
+            return 0;
         case (BARCODE_ISBNX):
             self->human_symbology = "isbnx";
-            break;
+            return 0;
         case (BARCODE_RM4SCC):
             self->human_symbology = "rm4scc";
-            break;
+            return 0;
         case (BARCODE_DATAMATRIX):
             self->human_symbology = "datamatrix";
-            break;
+            return 0;
         case (BARCODE_EAN14):
             self->human_symbology = "ean14";
-            break;
+            return 0;
         case (BARCODE_VIN):
             self->human_symbology = "vin";
-            break;
+            return 0;
         case (BARCODE_CODABLOCKF):
             self->human_symbology = "codablockf";
-            break;
+            return 0;
         case (BARCODE_NVE18):
             self->human_symbology = "nve18";
-            break;
+            return 0;
         case (BARCODE_JAPANPOST):
             self->human_symbology = "japanpost";
-            break;
+            return 0;
         case (BARCODE_KOREAPOST):
             self->human_symbology = "koreapost";
-            break;
+            return 0;
         case (BARCODE_RSS14STACK):
             self->human_symbology = "rss14stack";
-            break;
+            return 0;
         case (BARCODE_RSS14STACK_OMNI):
             self->human_symbology = "rss14stack_omni";
-            break;
+            return 0;
         case (BARCODE_RSS_EXPSTACK):
             self->human_symbology = "rss_expstack";
-            break;
+            return 0;
         case (BARCODE_PLANET):
             self->human_symbology = "planet";
-            break;
+            return 0;
         case (BARCODE_MICROPDF417):
             self->human_symbology = "micropdf417";
-            break;
+            return 0;
         case (BARCODE_ONECODE):
             self->human_symbology = "onecode";
-            break;
+            return 0;
         case (BARCODE_PLESSEY):
             self->human_symbology = "plessey";
-            break;
+            return 0;
         case (BARCODE_TELEPEN_NUM):
             self->human_symbology = "telepen_num";
-            break;
+            return 0;
         case (BARCODE_ITF14):
             self->human_symbology = "itf14";
-            break;
+            return 0;
         case (BARCODE_KIX):
             self->human_symbology = "kix";
-            break;
+            return 0;
         case (BARCODE_AZTEC):
             self->human_symbology = "aztec";
-            break;
+            return 0;
         case (BARCODE_DAFT):
             self->human_symbology = "daft";
-            break;
+            return 0;
         case (BARCODE_MICROQR):
             self->human_symbology = "microqr";
-            break;
+            return 0;
         case (BARCODE_HIBC_128):
             self->human_symbology = "hibc_128";
-            break;
+            return 0;
         case (BARCODE_HIBC_39):
             self->human_symbology = "hibc_39";
-            break;
+            return 0;
         case (BARCODE_HIBC_DM):
             self->human_symbology = "hibc_dm";
-            break;
+            return 0;
         case (BARCODE_HIBC_QR):
             self->human_symbology = "hibc_qr";
-            break;
+            return 0;
         case (BARCODE_HIBC_PDF):
             self->human_symbology = "hibc_pdf";
-            break;
+            return 0;
         case (BARCODE_HIBC_MICPDF):
             self->human_symbology = "hibc_micpdf";
-            break;
+            return 0;
         case (BARCODE_HIBC_BLOCKF):
             self->human_symbology = "hibc_blockf";
-            break;
+            return 0;
         case (BARCODE_HIBC_AZTEC):
             self->human_symbology = "hibc_aztec";
-            break;
+            return 0;
         case (BARCODE_DOTCODE):
             self->human_symbology = "dotcode";
-            break;
+            return 0;
         case (BARCODE_HANXIN):
             self->human_symbology = "hanxin";
-            break;
+            return 0;
         case (BARCODE_MAILMARK):
             self->human_symbology = "mailmark";
-            break;
+            return 0;
         case (BARCODE_AZRUNE):
             self->human_symbology = "azrune";
-            break;
+            return 0;
         case (BARCODE_CODE32):
             self->human_symbology = "code32";
-            break;
+            return 0;
         case (BARCODE_EANX_CC):
             self->human_symbology = "eanx_cc";
-            break;
+            return 0;
         case (BARCODE_EAN128_CC):
             self->human_symbology = "ean128_cc";
-            break;
+            return 0;
         case (BARCODE_RSS14_CC):
             self->human_symbology = "rss14_cc";
-            break;
+            return 0;
         case (BARCODE_RSS_LTD_CC):
             self->human_symbology = "rss_ltd_cc";
-            break;
+            return 0;
         case (BARCODE_RSS_EXP_CC):
             self->human_symbology = "rss_exp_cc";
-            break;
+            return 0;
         case (BARCODE_UPCA_CC):
             self->human_symbology = "upca_cc";
-            break;
+            return 0;
         case (BARCODE_UPCE_CC):
             self->human_symbology = "upce_cc";
-            break;
+            return 0;
         case (BARCODE_RSS14STACK_CC):
             self->human_symbology = "rss14stack_cc";
-            break;
+            return 0;
         case (BARCODE_RSS14_OMNI_CC):
             self->human_symbology = "rss14_omni_cc";
-            break;
+            return 0;
         case (BARCODE_RSS_EXPSTACK_CC):
             self->human_symbology = "rss_expstack_cc";
-            break;
+            return 0;
         case (BARCODE_CHANNEL):
             self->human_symbology = "channel";
-            break;
+            return 0;
         case (BARCODE_CODEONE):
             self->human_symbology = "codeone";
-            break;
+            return 0;
         case (BARCODE_GRIDMATRIX):
             self->human_symbology = "gridmatrix";
-            break;
+            return 0;
         case (BARCODE_UPNQR):
             self->human_symbology = "upnqr";
-            break;
+            return 0;
         case (BARCODE_ULTRA):
             self->human_symbology = "ultra";
-            break;
+            return 0;
         case (BARCODE_RMQR):
             self->human_symbology = "rmqr";
-            break;
+            return 0;
         default:
             PyErr_Format(
                 PyExc_ValueError,
@@ -380,14 +355,89 @@ CZINT_init(CZINT *self, PyObject *args, PyObject *kwds)
             );
             return -1;
     }
+}
+
+
+#define CZINT_SCALE_MAX 10
+#define CZINT_SCALE_MIN 0
+#define CZINT_SCALE_DEFAULT 1.0
+#define CZINT_DEFAULT_HEIGHT 50
+#define CZINT_DEFAULT_ECI 3
+#define CZINT_DEFAULT_FONT_SIZE 8
+
+static const float CZINT_DEFAULT_DOT_SIZE = 4.0 / 5.0;
+
+static int
+CZINT_init(CZINT *self, PyObject *args, PyObject *kwds)
+{
+    static char *kwlist[] = {
+      "data", "kind", "scale", "show_text",
+      "fontsize", "height", "whitespace_width",
+      "border_width", "input_mode" "eci",
+      "primary", "text", "dot_size", NULL
+    };
+
+    self->show_hrt = 1;
+    self->option_1 = 0;
+    self->option_2 = 0;
+    self->option_3 = 0;
+    self->whitespace_width = 0;
+    self->border_width = 0;
+    self->scale = CZINT_SCALE_DEFAULT;
+    self->fontsize = CZINT_DEFAULT_FONT_SIZE;
+    self->height = CZINT_DEFAULT_HEIGHT;
+    self->eci = CZINT_DEFAULT_ECI;
+    self->primary = NULL;
+    self->text = NULL;
+    self->dot_size = CZINT_DEFAULT_DOT_SIZE;
+
+    if (!PyArg_ParseTupleAndKeywords(
+            args, kwds, "Ob|iii$fbiBBBBs*fs*", kwlist,
+            &self->data,
+            &self->symbology,
+            &self->option_1,
+            &self->option_2,
+            &self->option_3,
+            &self->scale,
+            &self->show_hrt,
+            &self->fontsize,
+            &self->height,
+            &self->whitespace_width,
+            &self->border_width,
+            &self->eci,
+            &self->primary,
+            &self->dot_size,
+            &self->text
+    )) return -1;
+
+    if (self->scale <= CZINT_SCALE_MIN) {
+        PyErr_SetString(
+            PyExc_ValueError,
+            "scale must be greater then zero"
+        );
+        return NULL;
+    }
+
+
+    if (self->scale > CZINT_SCALE_MAX) {
+        PyErr_SetString(
+            PyExc_ValueError,
+            "scale must be lesser then ten"
+        );
+        return NULL;
+    }
+
+    if (set_human_symbology(self) == -1) return -1;
 
     if (PyBytes_Check(self->data)) {
         if (PyBytes_AsStringAndSize(self->data, &self->buffer, &self->length) == -1) {
+            self->input_mode = DATA_MODE;
             return -1;
         }
     } else if (PyUnicode_Check(self->data)) {
         self->buffer = (char *)PyUnicode_AsUTF8AndSize(self->data, &self->length);
         if (self->buffer == NULL) {
+            self->input_mode = UNICODE_MODE;
             return -1;
         }
     } else {
@@ -520,6 +570,19 @@ static PyObject* CZINT_render_bmp(
     symbol->option_2 = self->option_2;
     symbol->option_3 = self->option_3;
     symbol->fontsize = self->fontsize;
+    symbol->height = self->height;
+    symbol->whitespace_width = self->whitespace_width;
+    symbol->border_width = self->border_width;
+    symbol->eci = self->eci;
+    symbol->dot_size = self->dot_size;
+
+    if (self->primary != NULL) {
+        memcpy(symbol->primary, self->primary->buf, self->primary->len);
+    }
+
+    if (self->text != NULL) {
+        memcpy(symbol->text, self->text->buf, self->text->len);
+    }
 
     res = ZBarcode_Encode_and_Buffer(
         symbol,
@@ -657,6 +720,20 @@ static PyObject* CZINT_render_svg(
     symbol->option_2 = self->option_2;
     symbol->option_3 = self->option_3;
     symbol->fontsize = self->fontsize;
+    symbol->height = self->height;
+    symbol->whitespace_width = self->whitespace_width;
+    symbol->border_width = self->border_width;
+    symbol->eci = self->eci;
+    symbol->dot_size = self->dot_size;
+
+    if (self->primary != NULL) {
+        memcpy(symbol->primary, self->primary->buf, self->primary->len);
+    }
+
+    if (self->text != NULL) {
+        memcpy(symbol->text, self->text->buf, self->text->len);
+    }
+
 
     int res = 0;
     char *fsvg = NULL;
@@ -780,22 +857,85 @@ static PyObject* CZINT_render_svg(
 }
 
 
-PyDoc_STRVAR(CZINT_human_symbology_docstring,
-    "Return human readable barcode kind.\n\n"
-    "    Zint('data', BARCODE_QRCODE).human_symbology() -> str"
-);
-static int
-CZINT_human_symbology(CZINT *self, PyObject *args, PyObject *kwds)
-{
-    if (self->human_symbology == NULL) {
-        PyErr_SetString(
-            PyExc_ValueError,
-            "symbology is empty"
-        );
-        return NULL;
-    }
-    return PyUnicode_FromString(self->human_symbology);
-}
+static PyMemberDef
+CZINT_members[] = {
+    {
+        "data", T_OBJECT,
+        offsetof(CZINT, data),
+        READONLY, "Symbol payload"
+    },
+    {
+        "symbology", T_INT,
+        offsetof(CZINT, symbology),
+        READONLY, "Code of symbol to use"
+    },
+    {
+        "symbology_name", T_STRING,
+        offsetof(CZINT, human_symbology),
+        READONLY, "Name of symbol to use"
+    },
+    {
+        "height", T_INT,
+        offsetof(CZINT, height),
+        READONLY, "Symbol height"
+    },
+    {
+        "dot_size", T_FLOAT,
+        offsetof(CZINT, dot_size),
+        READONLY, "Size of dots used in dotty mode"
+    },
+    {
+        "scale", T_FLOAT,
+        offsetof(CZINT, scale),
+        READONLY, "Scale factor for adjusting size of image"
+    },
+    {
+        "border_width", T_INT,
+        offsetof(CZINT, border_width),
+        READONLY, "Border width"
+    },
+    {
+        "eci", T_INT,
+        offsetof(CZINT, eci),
+        READONLY, "Extended Channel Interpretation mode (3 default)"
+    },
+    {
+        "fontsize", T_INT,
+        offsetof(CZINT, fontsize),
+        READONLY, "fontsize"
+    },
+    {
+        "show_text", T_BOOL,
+        offsetof(CZINT, show_hrt),
+        READONLY, "Set to False to hide text"
+    },
+    {
+        "option_1", T_INT,
+        offsetof(CZINT, option_1),
+        READONLY, "Symbol specific option 1"
+    },
+    {
+        "option_2", T_INT,
+        offsetof(CZINT, option_2),
+        READONLY, "Symbol specific option 2"
+    },
+    {
+        "option_3", T_INT,
+        offsetof(CZINT, option_3),
+        READONLY, "Symbol specific option 3"
+    },
+    {
+        "primary", T_STRING,
+        offsetof(CZINT, primary),
+        READONLY, "Primary message data for more complex symbols"
+    },
+    {
+        "text", T_STRING,
+        offsetof(CZINT, text),
+        READONLY, "Human readable text, which usually consists of input data plus one more check digit"
+    },
+    {NULL}  /* Sentinel */
+};
 
 static PyMethodDef CZINT_methods[] = {
     {
@@ -808,14 +948,7 @@ static PyMethodDef CZINT_methods[] = {
         (PyCFunction) CZINT_render_svg, METH_VARARGS | METH_KEYWORDS,
         CZINT_render_svg_docstring
     },
-    {
-        "human_symbology",
-        (PyCFunction) CZINT_human_symbology, METH_NOARGS,
-        CZINT_human_symbology_docstring
-    },
-
     {NULL}  /* Sentinel */
-
 };
 
 
@@ -832,6 +965,7 @@ ZINTType = {
     .tp_init = (initproc) CZINT_init,
     .tp_dealloc = (destructor) CZINT_dealloc,
     .tp_methods = CZINT_methods,
+    .tp_members = CZINT_members,
     .tp_repr = (reprfunc) CZINT_repr
 };
 
