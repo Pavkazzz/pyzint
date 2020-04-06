@@ -387,8 +387,6 @@ CZINT_init(CZINT *self, PyObject *args, PyObject *kwds)
     self->fontsize = CZINT_DEFAULT_FONT_SIZE;
     self->height = CZINT_DEFAULT_HEIGHT;
     self->eci = CZINT_DEFAULT_ECI;
-//    self->primary = NULL;
-//    self->text = NULL;
     self->dot_size = CZINT_DEFAULT_DOT_SIZE;
 
     if (!PyArg_ParseTupleAndKeywords(
@@ -411,8 +409,8 @@ CZINT_init(CZINT *self, PyObject *args, PyObject *kwds)
             &self->eci,
 
             &self->primary,
-
             &self->text,
+
             &self->dot_size
     )) return -1;
 
