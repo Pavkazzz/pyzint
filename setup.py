@@ -2,7 +2,7 @@ from setuptools import Extension, setup
 
 setup(
     name="pyzint",
-    version="0.0.8",
+    version="0.0.9",
     description="Python ZINT bindings",
     long_description=open("README.rst").read(),
     packages=["pyzint"],
@@ -11,6 +11,7 @@ setup(
         Extension(
             "pyzint.pyzint", [
                 "pyzint/pyzint.c",
+                "pyzint/pyzint_misc.c",
                 "pyzint/src/zint/backend/mailmark.c",
                 "pyzint/src/zint/backend/hanxin.c",
                 "pyzint/src/zint/backend/common.c",
@@ -45,6 +46,7 @@ setup(
                 "pyzint/src/zint/backend/bmp.c",
                 "pyzint/src/zint/backend/codablock.c",
                 "pyzint/src/zint/backend/emf.c",
+                "pyzint/src/zint/backend/gb18030.c",
                 "pyzint/src/zint/backend/code.c",
                 "pyzint/src/zint/backend/code16k.c",
                 "pyzint/src/zint/backend/gif.c",
@@ -56,7 +58,7 @@ setup(
                 "pyzint/src/zint/backend/svg.c",
                 "pyzint/src/zint/backend/gridmtx.c",
                 "pyzint/src/zint/backend/dllversion.c",
-                "pyzint/src/zint/backend/raster.c",
+                "pyzint/src/zint/backend/raster.c"
             ],
             extra_compile_args=["-g"],
             include_dirs=["pyzint/src"],

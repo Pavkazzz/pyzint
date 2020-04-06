@@ -1,6 +1,8 @@
 #include <Python.h>
 #include "endianness.h"
 #include "src/zint/backend/zint.h"
+#include "src/zint/backend/common.h"
+#include "src/zint/backend/gb18030.h"
 
 extern void make_html_friendly(unsigned char * string, char * html_version);
 
@@ -399,9 +401,10 @@ CZINT_init(CZINT *self, PyObject *args, PyObject *kwds)
 
 static PyObject* CZINT_repr(CZINT *self) {
     return PyUnicode_FromFormat(
-        "<%s as %p: kind=%s (%d) buffer=%s (%d)>",
+        "<%s as %p: kind=%s (%d) buffer=%s (%d) option-1=%d option-2=%d option-3=%d>",
         Py_TYPE(self)->tp_name, self, self->human_symbology,
-        self->symbology, self->buffer, self->length
+        self->symbology, self->buffer, self->length,
+        self->option_1, self->option_2, self->option_3
     );
 }
 
@@ -776,7 +779,11 @@ static PyObject* CZINT_render_svg(
     return result;
 }
 
-
+static int
+CZINT_human_symbology(CZINT *self, PyObject *args, PyObject *kwds)
+{
+    return self->human_symbology;
+}
 static PyMethodDef CZINT_methods[] = {
     {
         "render_bmp",
