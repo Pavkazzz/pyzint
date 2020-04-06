@@ -5,6 +5,11 @@ from PIL import Image
 from pyzint.pyzint import Zint, BARCODE_RSS_EXP
 
 
+def test_params():
+    z = Zint("[255]11111111111222", BARCODE_RSS_EXP)
+    assert z.data == "[255]11111111111222"
+
+
 def test_bmp_rss_exp_cyzint():
     z = Zint("[255]11111111111222", BARCODE_RSS_EXP)
     barcode = z.render_bmp()

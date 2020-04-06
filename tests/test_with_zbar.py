@@ -2,7 +2,11 @@ from io import BytesIO
 
 import pytest
 from PIL import Image, ImageFile
-from zbar import Scanner
+
+try:
+    from zbar import Scanner
+except ImportError:
+    Scanner = None
 
 from pyzint import (
     BARCODE_EANX, BARCODE_CODE128, BARCODE_UPCE, BARCODE_UPCA,
@@ -16,6 +20,7 @@ from pyzint import (
 # (BARCODE_PDF417, "This is a PDF417", '', 'ZBAR_PDF417', 'PDF-417'),
 
 
+@pytest.mark.skip_if(Scanner is None)
 @pytest.mark.parametrize("type,value, checksum, zbar_type, exp_type", [
     (BARCODE_EANX, "00090311017", '2', 'ZBAR_UPCA', 'UPC-A'),
     (BARCODE_EANX, "978020137962", '4', 'ZBAR_EAN13', 'EAN-13'),

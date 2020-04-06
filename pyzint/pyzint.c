@@ -362,7 +362,7 @@ static int set_human_symbology(CZINT* self) {
 #define CZINT_SCALE_MIN 0
 #define CZINT_SCALE_DEFAULT 1.0
 #define CZINT_DEFAULT_HEIGHT 50
-#define CZINT_DEFAULT_ECI 3
+#define CZINT_DEFAULT_ECI 0
 #define CZINT_DEFAULT_FONT_SIZE 8
 
 static const float CZINT_DEFAULT_DOT_SIZE = 4.0 / 5.0;
