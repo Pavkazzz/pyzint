@@ -120,8 +120,8 @@ class Zint:
         whitespace_width: int = 0,
         border_width: int = 0,
         eci: int = 0,
-        text: str = None,
-        primary: str = None,
+        text: Union[str, bytes] = None,
+        primary: Union[str, bytes] = None,
         dot_size: int = 4.0 / 5.0
     ): ...
     def render_bmp(
