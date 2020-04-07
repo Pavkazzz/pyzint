@@ -1,10 +1,10 @@
 from PIL import Image, ImageFile
 
-from pyzint.pyzint import Zint, BARCODE_RSS_EXP, BARCODE_UPCA
+from pyzint import Barcode
 
 
 def png():
-    z = Zint("33123456", BARCODE_UPCA)
+    z = Barcode.UPCA("33123456")
     data = z.render_bmp()
     with open("f.bmp", "wb+") as fp:
         fp.write(data)
@@ -16,11 +16,11 @@ def png():
 
 
 def svg():
-    z = Zint("[255]11111111111222", BARCODE_RSS_EXP, scale=2, show_text=False)
+    z = Barcode.RSS_EXP("[255]11111111111222", scale=2, show_text=False)
     with open("fff.svg", "w+") as fp:
         fp.write(z.render_svg().decode())
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     svg()
     png()

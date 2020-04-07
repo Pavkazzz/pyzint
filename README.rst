@@ -25,16 +25,24 @@ Example
 =======
 
 Create main object zint
+
 .. code-block:: python
-z = Zint("[255]1111111111122", BARCODE_RSS_EXP)
-..
+
+   from pyzint import Barcode
+
+   z = Barcode.RSS_EXP("[255]1111111111122")
+
 
 Generate bmp image
+
 .. code-block:: python
-z.render_bmp()
-..
+
+   z.render_bmp()
+
 
 Generate svg image
+
 .. code-block:: python
-z.render_bmp()
-..
+
+   z.render_bmp()
+

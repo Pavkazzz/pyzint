@@ -1,17 +1,19 @@
 from setuptools import Extension, setup
 
+
 setup(
     name="pyzint",
-    version="0.0.11",
+    version="0.1.0",
     description="Python ZINT bindings",
     long_description=open("README.rst").read(),
     packages=["pyzint"],
-    package_data={"pyzint": ["pyzint.pyi"], },
+    package_data={"pyzint": ["pyzint.pyi"],},
     ext_modules=[
         Extension(
-            "pyzint.pyzint", [
-                "pyzint/pyzint.c",
-                "pyzint/pyzint_misc.c",
+            "pyzint.zint",
+            [
+                "pyzint/zint.c",
+                "pyzint/zint_misc.c",
                 "pyzint/src/zint/backend/mailmark.c",
                 "pyzint/src/zint/backend/hanxin.c",
                 "pyzint/src/zint/backend/common.c",
@@ -58,31 +60,29 @@ setup(
                 "pyzint/src/zint/backend/svg.c",
                 "pyzint/src/zint/backend/gridmtx.c",
                 "pyzint/src/zint/backend/dllversion.c",
-                "pyzint/src/zint/backend/raster.c"
+                "pyzint/src/zint/backend/raster.c",
             ],
             extra_compile_args=["-g"],
             include_dirs=["pyzint/src"],
-            define_macros=[("NO_PNG", "1")]
+            define_macros=[("NO_PNG", "1")],
         ),
     ],
-    project_urls={
-        'Source': 'https://github.com/Pavkazzz/pyzint',
-    },
+    project_urls={"Source": "https://github.com/Pavkazzz/pyzint",},
     classifiers=[
-        'License :: OSI Approved :: Apache Software License',
-        'Topic :: Internet',
-        'Topic :: Software Development',
-        'Topic :: Software Development :: Libraries',
-        'Intended Audience :: Developers',
-        'Natural Language :: English',
-        'Operating System :: MacOS',
-        'Operating System :: POSIX',
-        'Programming Language :: Python',
-        'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.5',
-        'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7',
-        'Programming Language :: Python :: 3.8',
-        'Programming Language :: Python :: Implementation :: CPython',
+        "License :: OSI Approved :: Apache Software License",
+        "Topic :: Internet",
+        "Topic :: Software Development",
+        "Topic :: Software Development :: Libraries",
+        "Intended Audience :: Developers",
+        "Natural Language :: English",
+        "Operating System :: MacOS",
+        "Operating System :: POSIX",
+        "Programming Language :: Python",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.5",
+        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: Implementation :: CPython",
     ],
 )
