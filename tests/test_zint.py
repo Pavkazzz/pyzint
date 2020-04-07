@@ -18,8 +18,8 @@ def test_params_bytes():
     whitespace_width = 2
     border_width = 3
     eci = 4
-    primary = b"foo"
-    text = b"bar"
+    primary = "foo"
+    text = "bar"
     dot_size = 5
 
     z = Zint(
@@ -52,8 +52,8 @@ def test_params_bytes():
     assert z.border_width == border_width
     assert z.show_text == show_text
     assert z.eci == eci
-    assert z.text == text.decode()
-    assert z.primary == primary.decode()
+    assert z.text == text
+    assert z.primary == primary
     assert z.dot_size == dot_size
 
 
