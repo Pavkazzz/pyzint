@@ -375,7 +375,8 @@ CZINT_init(CZINT *self, PyObject *args, PyObject *kwds)
     };
 
     self->show_hrt = 1;
-    self->option_1 = 0;
+
+    self->option_1 = -1;
     self->option_2 = 0;
     self->option_3 = 0;
     self->whitespace_width = 0;
@@ -387,7 +388,7 @@ CZINT_init(CZINT *self, PyObject *args, PyObject *kwds)
     self->dot_size = CZINT_DEFAULT_DOT_SIZE;
 
     if (!PyArg_ParseTupleAndKeywords(
-            args, kwds, "Ob|iii$fbiBBBBs*s*f", kwlist,
+            args, kwds, "Ob|iii$fbiBBBBz*s*f", kwlist,
             &self->data,
             &self->symbology,
 
@@ -433,15 +434,10 @@ CZINT_init(CZINT *self, PyObject *args, PyObject *kwds)
     if (self->primary.len >= 128) {
         PyErr_Format(
             PyExc_ValueError,
-            "primary must be short then 128 bytes, got %d",
-            self->primary_len
+            "primary must be shorten then 128 bytes, got %d",
+            self->primary.len
         );
         return -1;
-    }
-
-    if (primary != NULL && self->primary_len > 0) {
-        self->primary = PyMem_Calloc(sizeof(char), self->primary_len + 1);
-        memcpy(self->primary, primary, self->primary_len);
     }
 
     if (PyBytes_Check(self->data)) {
@@ -458,6 +454,14 @@ CZINT_init(CZINT *self, PyObject *args, PyObject *kwds)
     } else {
         PyErr_SetNone(PyExc_ValueError);
         return -1;
+    }
+
+    if (self->length >= 128) {
+        PyErr_Format(
+            PyExc_ValueError,
+            "text must be shorten then 128 bytes, got %d",
+            self->length
+        );
     }
 
     Py_INCREF(self->data);

@@ -12,9 +12,7 @@ Code example:
 ```python
 import pyzint
 
-symbol = pyzint.Zint(
-    '1234567', pyzint.BARCODE_CODE11
-)
+symbol = pyzint.Barcode.CODE11('1234567')
 
 with open('CODE11.bmp', "wb") as bmp:
     bmp.write(symbol.render_bmp())
@@ -29,9 +27,7 @@ Code example:
 ```python
 import pyzint
 
-symbol = pyzint.Zint(
-    '1234567', pyzint.BARCODE_C25MATRIX
-)
+symbol = pyzint.Barcode.C25MATRIX('1234567')
 
 with open('C25MATRIX.bmp', "wb") as bmp:
     bmp.write(symbol.render_bmp())
@@ -46,9 +42,7 @@ Code example:
 ```python
 import pyzint
 
-symbol = pyzint.Zint(
-    '1234567', pyzint.BARCODE_C25INTER
-)
+symbol = pyzint.Barcode.C25INTER('1234567')
 
 with open('C25INTER.bmp', "wb") as bmp:
     bmp.write(symbol.render_bmp())
@@ -63,9 +57,7 @@ Code example:
 ```python
 import pyzint
 
-symbol = pyzint.Zint(
-    '1234567', pyzint.BARCODE_C25IATA
-)
+symbol = pyzint.Barcode.C25IATA('1234567')
 
 with open('C25IATA.bmp', "wb") as bmp:
     bmp.write(symbol.render_bmp())
@@ -80,9 +72,7 @@ Code example:
 ```python
 import pyzint
 
-symbol = pyzint.Zint(
-    '1234567', pyzint.BARCODE_C25LOGIC
-)
+symbol = pyzint.Barcode.C25LOGIC('1234567')
 
 with open('C25LOGIC.bmp', "wb") as bmp:
     bmp.write(symbol.render_bmp())
@@ -97,9 +87,7 @@ Code example:
 ```python
 import pyzint
 
-symbol = pyzint.Zint(
-    '1234567', pyzint.BARCODE_C25IND
-)
+symbol = pyzint.Barcode.C25IND('1234567')
 
 with open('C25IND.bmp', "wb") as bmp:
     bmp.write(symbol.render_bmp())
@@ -114,9 +102,7 @@ Code example:
 ```python
 import pyzint
 
-symbol = pyzint.Zint(
-    '1234567', pyzint.BARCODE_CODE39
-)
+symbol = pyzint.Barcode.CODE39('1234567')
 
 with open('CODE39.bmp', "wb") as bmp:
     bmp.write(symbol.render_bmp())
@@ -131,9 +117,7 @@ Code example:
 ```python
 import pyzint
 
-symbol = pyzint.Zint(
-    '1234567', pyzint.BARCODE_EXCODE39
-)
+symbol = pyzint.Barcode.EXCODE39('1234567')
 
 with open('EXCODE39.bmp', "wb") as bmp:
     bmp.write(symbol.render_bmp())
@@ -148,9 +132,7 @@ Code example:
 ```python
 import pyzint
 
-symbol = pyzint.Zint(
-    '1234567', pyzint.BARCODE_EANX
-)
+symbol = pyzint.Barcode.EANX('1234567')
 
 with open('EANX.bmp', "wb") as bmp:
     bmp.write(symbol.render_bmp())
@@ -165,9 +147,7 @@ Code example:
 ```python
 import pyzint
 
-symbol = pyzint.Zint(
-    '123456789012', pyzint.BARCODE_EANX_CHK
-)
+symbol = pyzint.Barcode.EANX_CHK('123456789012')
 
 with open('EANX_CHK.bmp', "wb") as bmp:
     bmp.write(symbol.render_bmp())
@@ -182,9 +162,7 @@ Code example:
 ```python
 import pyzint
 
-symbol = pyzint.Zint(
-    '[01]12345678901234', pyzint.BARCODE_EAN128
-)
+symbol = pyzint.Barcode.EAN128('[01]12345678901234')
 
 with open('EAN128.bmp', "wb") as bmp:
     bmp.write(symbol.render_bmp())
@@ -199,9 +177,7 @@ Code example:
 ```python
 import pyzint
 
-symbol = pyzint.Zint(
-    'A40156B', pyzint.BARCODE_CODABAR
-)
+symbol = pyzint.Barcode.CODABAR('A40156B')
 
 with open('CODABAR.bmp', "wb") as bmp:
     bmp.write(symbol.render_bmp())
@@ -216,9 +192,7 @@ Code example:
 ```python
 import pyzint
 
-symbol = pyzint.Zint(
-    '1234567', pyzint.BARCODE_CODE128
-)
+symbol = pyzint.Barcode.CODE128('1234567')
 
 with open('CODE128.bmp', "wb") as bmp:
     bmp.write(symbol.render_bmp())
@@ -233,9 +207,7 @@ Code example:
 ```python
 import pyzint
 
-symbol = pyzint.Zint(
-    '1234567', pyzint.BARCODE_DPLEIT
-)
+symbol = pyzint.Barcode.DPLEIT('1234567')
 
 with open('DPLEIT.bmp', "wb") as bmp:
     bmp.write(symbol.render_bmp())
@@ -250,9 +222,7 @@ Code example:
 ```python
 import pyzint
 
-symbol = pyzint.Zint(
-    '1234567', pyzint.BARCODE_DPIDENT
-)
+symbol = pyzint.Barcode.DPIDENT('1234567')
 
 with open('DPIDENT.bmp', "wb") as bmp:
     bmp.write(symbol.render_bmp())
@@ -267,9 +237,7 @@ Code example:
 ```python
 import pyzint
 
-symbol = pyzint.Zint(
-    '1234567', pyzint.BARCODE_CODE16K
-)
+symbol = pyzint.Barcode.CODE16K('1234567')
 
 with open('CODE16K.bmp', "wb") as bmp:
     bmp.write(symbol.render_bmp())
@@ -284,9 +252,7 @@ Code example:
 ```python
 import pyzint
 
-symbol = pyzint.Zint(
-    '1234567', pyzint.BARCODE_CODE49
-)
+symbol = pyzint.Barcode.CODE49('1234567')
 
 with open('CODE49.bmp', "wb") as bmp:
     bmp.write(symbol.render_bmp())
@@ -301,9 +267,7 @@ Code example:
 ```python
 import pyzint
 
-symbol = pyzint.Zint(
-    '1234567', pyzint.BARCODE_CODE93
-)
+symbol = pyzint.Barcode.CODE93('1234567')
 
 with open('CODE93.bmp', "wb") as bmp:
     bmp.write(symbol.render_bmp())
@@ -318,9 +282,7 @@ Code example:
 ```python
 import pyzint
 
-symbol = pyzint.Zint(
-    '1234567', pyzint.BARCODE_FLAT
-)
+symbol = pyzint.Barcode.FLAT('1234567')
 
 with open('FLAT.bmp', "wb") as bmp:
     bmp.write(symbol.render_bmp())
@@ -335,9 +297,7 @@ Code example:
 ```python
 import pyzint
 
-symbol = pyzint.Zint(
-    '1234567', pyzint.BARCODE_RSS14
-)
+symbol = pyzint.Barcode.RSS14('1234567')
 
 with open('RSS14.bmp', "wb") as bmp:
     bmp.write(symbol.render_bmp())
@@ -352,9 +312,7 @@ Code example:
 ```python
 import pyzint
 
-symbol = pyzint.Zint(
-    '1234567', pyzint.BARCODE_RSS_LTD
-)
+symbol = pyzint.Barcode.RSS_LTD('1234567')
 
 with open('RSS_LTD.bmp', "wb") as bmp:
     bmp.write(symbol.render_bmp())
@@ -369,9 +327,7 @@ Code example:
 ```python
 import pyzint
 
-symbol = pyzint.Zint(
-    '[01]12345678901234', pyzint.BARCODE_RSS_EXP
-)
+symbol = pyzint.Barcode.RSS_EXP('[01]12345678901234')
 
 with open('RSS_EXP.bmp', "wb") as bmp:
     bmp.write(symbol.render_bmp())
@@ -386,9 +342,7 @@ Code example:
 ```python
 import pyzint
 
-symbol = pyzint.Zint(
-    '1234567', pyzint.BARCODE_TELEPEN
-)
+symbol = pyzint.Barcode.TELEPEN('1234567')
 
 with open('TELEPEN.bmp', "wb") as bmp:
     bmp.write(symbol.render_bmp())
@@ -403,9 +357,7 @@ Code example:
 ```python
 import pyzint
 
-symbol = pyzint.Zint(
-    '1234567', pyzint.BARCODE_UPCA
-)
+symbol = pyzint.Barcode.UPCA('1234567')
 
 with open('UPCA.bmp', "wb") as bmp:
     bmp.write(symbol.render_bmp())
@@ -420,9 +372,7 @@ Code example:
 ```python
 import pyzint
 
-symbol = pyzint.Zint(
-    '123456789012', pyzint.BARCODE_UPCA_CHK
-)
+symbol = pyzint.Barcode.UPCA_CHK('123456789012')
 
 with open('UPCA_CHK.bmp', "wb") as bmp:
     bmp.write(symbol.render_bmp())
@@ -437,9 +387,7 @@ Code example:
 ```python
 import pyzint
 
-symbol = pyzint.Zint(
-    '001238', pyzint.BARCODE_UPCE
-)
+symbol = pyzint.Barcode.UPCE('001238')
 
 with open('UPCE.bmp', "wb") as bmp:
     bmp.write(symbol.render_bmp())
@@ -454,9 +402,7 @@ Code example:
 ```python
 import pyzint
 
-symbol = pyzint.Zint(
-    '04252614', pyzint.BARCODE_UPCE_CHK
-)
+symbol = pyzint.Barcode.UPCE_CHK('04252614')
 
 with open('UPCE_CHK.bmp', "wb") as bmp:
     bmp.write(symbol.render_bmp())
@@ -471,9 +417,7 @@ Code example:
 ```python
 import pyzint
 
-symbol = pyzint.Zint(
-    '555551237', pyzint.BARCODE_POSTNET
-)
+symbol = pyzint.Barcode.POSTNET('555551237')
 
 with open('POSTNET.bmp', "wb") as bmp:
     bmp.write(symbol.render_bmp())
@@ -488,9 +432,7 @@ Code example:
 ```python
 import pyzint
 
-symbol = pyzint.Zint(
-    '1234567', pyzint.BARCODE_MSI_PLESSEY
-)
+symbol = pyzint.Barcode.MSI_PLESSEY('1234567')
 
 with open('MSI_PLESSEY.bmp', "wb") as bmp:
     bmp.write(symbol.render_bmp())
@@ -505,9 +447,7 @@ Code example:
 ```python
 import pyzint
 
-symbol = pyzint.Zint(
-    'A', pyzint.BARCODE_FIM
-)
+symbol = pyzint.Barcode.FIM('A')
 
 with open('FIM.bmp', "wb") as bmp:
     bmp.write(symbol.render_bmp())
@@ -522,9 +462,7 @@ Code example:
 ```python
 import pyzint
 
-symbol = pyzint.Zint(
-    '1234567', pyzint.BARCODE_LOGMARS
-)
+symbol = pyzint.Barcode.LOGMARS('1234567')
 
 with open('LOGMARS.bmp', "wb") as bmp:
     bmp.write(symbol.render_bmp())
@@ -539,9 +477,7 @@ Code example:
 ```python
 import pyzint
 
-symbol = pyzint.Zint(
-    '12345', pyzint.BARCODE_PHARMA
-)
+symbol = pyzint.Barcode.PHARMA('12345')
 
 with open('PHARMA.bmp', "wb") as bmp:
     bmp.write(symbol.render_bmp())
@@ -556,9 +492,7 @@ Code example:
 ```python
 import pyzint
 
-symbol = pyzint.Zint(
-    '1234567', pyzint.BARCODE_PZN
-)
+symbol = pyzint.Barcode.PZN('1234567')
 
 with open('PZN.bmp', "wb") as bmp:
     bmp.write(symbol.render_bmp())
@@ -573,9 +507,7 @@ Code example:
 ```python
 import pyzint
 
-symbol = pyzint.Zint(
-    '1234567', pyzint.BARCODE_PHARMA_TWO
-)
+symbol = pyzint.Barcode.PHARMA_TWO('1234567')
 
 with open('PHARMA_TWO.bmp', "wb") as bmp:
     bmp.write(symbol.render_bmp())
@@ -590,9 +522,7 @@ Code example:
 ```python
 import pyzint
 
-symbol = pyzint.Zint(
-    'Hello World', pyzint.BARCODE_PDF417
-)
+symbol = pyzint.Barcode.PDF417('Hello World')
 
 with open('PDF417.bmp', "wb") as bmp:
     bmp.write(symbol.render_bmp())
@@ -607,9 +537,7 @@ Code example:
 ```python
 import pyzint
 
-symbol = pyzint.Zint(
-    '1234567', pyzint.BARCODE_PDF417TRUNC
-)
+symbol = pyzint.Barcode.PDF417TRUNC('1234567')
 
 with open('PDF417TRUNC.bmp', "wb") as bmp:
     bmp.write(symbol.render_bmp())
@@ -624,9 +552,7 @@ Code example:
 ```python
 import pyzint
 
-symbol = pyzint.Zint(
-    '1234567', pyzint.BARCODE_MAXICODE
-)
+symbol = pyzint.Barcode.MAXICODE('1234567')
 
 with open('MAXICODE.bmp', "wb") as bmp:
     bmp.write(symbol.render_bmp())
@@ -641,9 +567,7 @@ Code example:
 ```python
 import pyzint
 
-symbol = pyzint.Zint(
-    '1234567', pyzint.BARCODE_QRCODE
-)
+symbol = pyzint.Barcode.QRCODE('1234567')
 
 with open('QRCODE.bmp', "wb") as bmp:
     bmp.write(symbol.render_bmp())
@@ -658,9 +582,7 @@ Code example:
 ```python
 import pyzint
 
-symbol = pyzint.Zint(
-    '1234567', pyzint.BARCODE_CODE128B
-)
+symbol = pyzint.Barcode.CODE128B('1234567')
 
 with open('CODE128B.bmp', "wb") as bmp:
     bmp.write(symbol.render_bmp())
@@ -675,9 +597,7 @@ Code example:
 ```python
 import pyzint
 
-symbol = pyzint.Zint(
-    '12345678', pyzint.BARCODE_AUSPOST
-)
+symbol = pyzint.Barcode.AUSPOST('12345678')
 
 with open('AUSPOST.bmp', "wb") as bmp:
     bmp.write(symbol.render_bmp())
@@ -692,9 +612,7 @@ Code example:
 ```python
 import pyzint
 
-symbol = pyzint.Zint(
-    '1234567', pyzint.BARCODE_AUSREPLY
-)
+symbol = pyzint.Barcode.AUSREPLY('1234567')
 
 with open('AUSREPLY.bmp', "wb") as bmp:
     bmp.write(symbol.render_bmp())
@@ -709,9 +627,7 @@ Code example:
 ```python
 import pyzint
 
-symbol = pyzint.Zint(
-    '1234567', pyzint.BARCODE_AUSROUTE
-)
+symbol = pyzint.Barcode.AUSROUTE('1234567')
 
 with open('AUSROUTE.bmp', "wb") as bmp:
     bmp.write(symbol.render_bmp())
@@ -726,9 +642,7 @@ Code example:
 ```python
 import pyzint
 
-symbol = pyzint.Zint(
-    '1234567', pyzint.BARCODE_AUSREDIRECT
-)
+symbol = pyzint.Barcode.AUSREDIRECT('1234567')
 
 with open('AUSREDIRECT.bmp', "wb") as bmp:
     bmp.write(symbol.render_bmp())
@@ -743,9 +657,7 @@ Code example:
 ```python
 import pyzint
 
-symbol = pyzint.Zint(
-    '9781491946008', pyzint.BARCODE_ISBNX
-)
+symbol = pyzint.Barcode.ISBNX('9781491946008')
 
 with open('ISBNX.bmp', "wb") as bmp:
     bmp.write(symbol.render_bmp())
@@ -760,9 +672,7 @@ Code example:
 ```python
 import pyzint
 
-symbol = pyzint.Zint(
-    '1234567', pyzint.BARCODE_RM4SCC
-)
+symbol = pyzint.Barcode.RM4SCC('1234567')
 
 with open('RM4SCC.bmp', "wb") as bmp:
     bmp.write(symbol.render_bmp())
@@ -777,9 +687,7 @@ Code example:
 ```python
 import pyzint
 
-symbol = pyzint.Zint(
-    '1234567', pyzint.BARCODE_DATAMATRIX
-)
+symbol = pyzint.Barcode.DATAMATRIX('1234567')
 
 with open('DATAMATRIX.bmp', "wb") as bmp:
     bmp.write(symbol.render_bmp())
@@ -794,9 +702,7 @@ Code example:
 ```python
 import pyzint
 
-symbol = pyzint.Zint(
-    '1234567', pyzint.BARCODE_EAN14
-)
+symbol = pyzint.Barcode.EAN14('1234567')
 
 with open('EAN14.bmp', "wb") as bmp:
     bmp.write(symbol.render_bmp())
@@ -811,9 +717,7 @@ Code example:
 ```python
 import pyzint
 
-symbol = pyzint.Zint(
-    '123456789012', pyzint.BARCODE_VIN
-)
+symbol = pyzint.Barcode.VIN('123456789012')
 
 with open('VIN.bmp', "wb") as bmp:
     bmp.write(symbol.render_bmp())
@@ -828,9 +732,7 @@ Code example:
 ```python
 import pyzint
 
-symbol = pyzint.Zint(
-    '1234567', pyzint.BARCODE_CODABLOCKF
-)
+symbol = pyzint.Barcode.CODABLOCKF('1234567')
 
 with open('CODABLOCKF.bmp', "wb") as bmp:
     bmp.write(symbol.render_bmp())
@@ -845,9 +747,7 @@ Code example:
 ```python
 import pyzint
 
-symbol = pyzint.Zint(
-    '1234567', pyzint.BARCODE_NVE18
-)
+symbol = pyzint.Barcode.NVE18('1234567')
 
 with open('NVE18.bmp', "wb") as bmp:
     bmp.write(symbol.render_bmp())
@@ -862,9 +762,7 @@ Code example:
 ```python
 import pyzint
 
-symbol = pyzint.Zint(
-    '1234567', pyzint.BARCODE_JAPANPOST
-)
+symbol = pyzint.Barcode.JAPANPOST('1234567')
 
 with open('JAPANPOST.bmp', "wb") as bmp:
     bmp.write(symbol.render_bmp())
@@ -879,9 +777,7 @@ Code example:
 ```python
 import pyzint
 
-symbol = pyzint.Zint(
-    '123456', pyzint.BARCODE_KOREAPOST
-)
+symbol = pyzint.Barcode.KOREAPOST('123456')
 
 with open('KOREAPOST.bmp', "wb") as bmp:
     bmp.write(symbol.render_bmp())
@@ -896,9 +792,7 @@ Code example:
 ```python
 import pyzint
 
-symbol = pyzint.Zint(
-    '1234567', pyzint.BARCODE_RSS14STACK
-)
+symbol = pyzint.Barcode.RSS14STACK('1234567')
 
 with open('RSS14STACK.bmp', "wb") as bmp:
     bmp.write(symbol.render_bmp())
@@ -913,9 +807,7 @@ Code example:
 ```python
 import pyzint
 
-symbol = pyzint.Zint(
-    '1234567', pyzint.BARCODE_RSS14STACK_OMNI
-)
+symbol = pyzint.Barcode.RSS14STACK_OMNI('1234567')
 
 with open('RSS14STACK_OMNI.bmp', "wb") as bmp:
     bmp.write(symbol.render_bmp())
@@ -930,9 +822,7 @@ Code example:
 ```python
 import pyzint
 
-symbol = pyzint.Zint(
-    '[01]12345678901234', pyzint.BARCODE_RSS_EXPSTACK
-)
+symbol = pyzint.Barcode.RSS_EXPSTACK('[01]12345678901234')
 
 with open('RSS_EXPSTACK.bmp', "wb") as bmp:
     bmp.write(symbol.render_bmp())
@@ -947,9 +837,7 @@ Code example:
 ```python
 import pyzint
 
-symbol = pyzint.Zint(
-    '1234567890123', pyzint.BARCODE_PLANET
-)
+symbol = pyzint.Barcode.PLANET('1234567890123')
 
 with open('PLANET.bmp', "wb") as bmp:
     bmp.write(symbol.render_bmp())
@@ -964,9 +852,7 @@ Code example:
 ```python
 import pyzint
 
-symbol = pyzint.Zint(
-    '1234567', pyzint.BARCODE_MICROPDF417
-)
+symbol = pyzint.Barcode.MICROPDF417('1234567')
 
 with open('MICROPDF417.bmp', "wb") as bmp:
     bmp.write(symbol.render_bmp())
@@ -981,9 +867,7 @@ Code example:
 ```python
 import pyzint
 
-symbol = pyzint.Zint(
-    '12345678901234567890', pyzint.BARCODE_ONECODE
-)
+symbol = pyzint.Barcode.ONECODE('12345678901234567890')
 
 with open('ONECODE.bmp', "wb") as bmp:
     bmp.write(symbol.render_bmp())
@@ -998,9 +882,7 @@ Code example:
 ```python
 import pyzint
 
-symbol = pyzint.Zint(
-    '1234567', pyzint.BARCODE_PLESSEY
-)
+symbol = pyzint.Barcode.PLESSEY('1234567')
 
 with open('PLESSEY.bmp', "wb") as bmp:
     bmp.write(symbol.render_bmp())
@@ -1015,9 +897,7 @@ Code example:
 ```python
 import pyzint
 
-symbol = pyzint.Zint(
-    '12345678', pyzint.BARCODE_TELEPEN_NUM
-)
+symbol = pyzint.Barcode.TELEPEN_NUM('12345678')
 
 with open('TELEPEN_NUM.bmp', "wb") as bmp:
     bmp.write(symbol.render_bmp())
@@ -1032,9 +912,7 @@ Code example:
 ```python
 import pyzint
 
-symbol = pyzint.Zint(
-    '12345678', pyzint.BARCODE_ITF14
-)
+symbol = pyzint.Barcode.ITF14('12345678')
 
 with open('ITF14.bmp', "wb") as bmp:
     bmp.write(symbol.render_bmp())
@@ -1049,9 +927,7 @@ Code example:
 ```python
 import pyzint
 
-symbol = pyzint.Zint(
-    '12345678', pyzint.BARCODE_KIX
-)
+symbol = pyzint.Barcode.KIX('12345678')
 
 with open('KIX.bmp', "wb") as bmp:
     bmp.write(symbol.render_bmp())
@@ -1066,9 +942,7 @@ Code example:
 ```python
 import pyzint
 
-symbol = pyzint.Zint(
-    '12345678', pyzint.BARCODE_AZTEC
-)
+symbol = pyzint.Barcode.AZTEC('12345678')
 
 with open('AZTEC.bmp', "wb") as bmp:
     bmp.write(symbol.render_bmp())
@@ -1083,9 +957,7 @@ Code example:
 ```python
 import pyzint
 
-symbol = pyzint.Zint(
-    'A', pyzint.BARCODE_DAFT
-)
+symbol = pyzint.Barcode.DAFT('A')
 
 with open('DAFT.bmp', "wb") as bmp:
     bmp.write(symbol.render_bmp())
@@ -1100,9 +972,7 @@ Code example:
 ```python
 import pyzint
 
-symbol = pyzint.Zint(
-    '12345678', pyzint.BARCODE_MICROQR
-)
+symbol = pyzint.Barcode.MICROQR('12345678')
 
 with open('MICROQR.bmp', "wb") as bmp:
     bmp.write(symbol.render_bmp())
@@ -1117,9 +987,7 @@ Code example:
 ```python
 import pyzint
 
-symbol = pyzint.Zint(
-    '123456789', pyzint.BARCODE_HIBC_128
-)
+symbol = pyzint.Barcode.HIBC_128('123456789')
 
 with open('HIBC_128.bmp', "wb") as bmp:
     bmp.write(symbol.render_bmp())
@@ -1134,9 +1002,7 @@ Code example:
 ```python
 import pyzint
 
-symbol = pyzint.Zint(
-    '123456789', pyzint.BARCODE_HIBC_39
-)
+symbol = pyzint.Barcode.HIBC_39('123456789')
 
 with open('HIBC_39.bmp', "wb") as bmp:
     bmp.write(symbol.render_bmp())
@@ -1151,9 +1017,7 @@ Code example:
 ```python
 import pyzint
 
-symbol = pyzint.Zint(
-    '123456789', pyzint.BARCODE_HIBC_DM
-)
+symbol = pyzint.Barcode.HIBC_DM('123456789')
 
 with open('HIBC_DM.bmp', "wb") as bmp:
     bmp.write(symbol.render_bmp())
@@ -1168,9 +1032,7 @@ Code example:
 ```python
 import pyzint
 
-symbol = pyzint.Zint(
-    '123456789', pyzint.BARCODE_HIBC_QR
-)
+symbol = pyzint.Barcode.HIBC_QR('123456789')
 
 with open('HIBC_QR.bmp', "wb") as bmp:
     bmp.write(symbol.render_bmp())
@@ -1185,9 +1047,7 @@ Code example:
 ```python
 import pyzint
 
-symbol = pyzint.Zint(
-    '123456789', pyzint.BARCODE_HIBC_PDF
-)
+symbol = pyzint.Barcode.HIBC_PDF('123456789')
 
 with open('HIBC_PDF.bmp', "wb") as bmp:
     bmp.write(symbol.render_bmp())
@@ -1202,9 +1062,7 @@ Code example:
 ```python
 import pyzint
 
-symbol = pyzint.Zint(
-    '123456789', pyzint.BARCODE_HIBC_MICPDF
-)
+symbol = pyzint.Barcode.HIBC_MICPDF('123456789')
 
 with open('HIBC_MICPDF.bmp', "wb") as bmp:
     bmp.write(symbol.render_bmp())
@@ -1219,9 +1077,7 @@ Code example:
 ```python
 import pyzint
 
-symbol = pyzint.Zint(
-    '123456789', pyzint.BARCODE_HIBC_BLOCKF
-)
+symbol = pyzint.Barcode.HIBC_BLOCKF('123456789')
 
 with open('HIBC_BLOCKF.bmp', "wb") as bmp:
     bmp.write(symbol.render_bmp())
@@ -1236,9 +1092,7 @@ Code example:
 ```python
 import pyzint
 
-symbol = pyzint.Zint(
-    '123456789', pyzint.BARCODE_HIBC_AZTEC
-)
+symbol = pyzint.Barcode.HIBC_AZTEC('123456789')
 
 with open('HIBC_AZTEC.bmp', "wb") as bmp:
     bmp.write(symbol.render_bmp())
@@ -1253,9 +1107,7 @@ Code example:
 ```python
 import pyzint
 
-symbol = pyzint.Zint(
-    '1234567890', pyzint.BARCODE_DOTCODE
-)
+symbol = pyzint.Barcode.DOTCODE('1234567890')
 
 with open('DOTCODE.bmp', "wb") as bmp:
     bmp.write(symbol.render_bmp())
@@ -1270,9 +1122,7 @@ Code example:
 ```python
 import pyzint
 
-symbol = pyzint.Zint(
-    '1234567890', pyzint.BARCODE_HANXIN
-)
+symbol = pyzint.Barcode.HANXIN('1234567890')
 
 with open('HANXIN.bmp', "wb") as bmp:
     bmp.write(symbol.render_bmp())
@@ -1287,9 +1137,7 @@ Code example:
 ```python
 import pyzint
 
-symbol = pyzint.Zint(
-    '41038422416563762EF61AH8T', pyzint.BARCODE_MAILMARK
-)
+symbol = pyzint.Barcode.MAILMARK('41038422416563762EF61AH8T')
 
 with open('MAILMARK.bmp', "wb") as bmp:
     bmp.write(symbol.render_bmp())
@@ -1304,9 +1152,7 @@ Code example:
 ```python
 import pyzint
 
-symbol = pyzint.Zint(
-    '1', pyzint.BARCODE_AZRUNE
-)
+symbol = pyzint.Barcode.AZRUNE('1')
 
 with open('AZRUNE.bmp', "wb") as bmp:
     bmp.write(symbol.render_bmp())
@@ -1321,9 +1167,7 @@ Code example:
 ```python
 import pyzint
 
-symbol = pyzint.Zint(
-    '32', pyzint.BARCODE_CODE32
-)
+symbol = pyzint.Barcode.CODE32('32')
 
 with open('CODE32.bmp', "wb") as bmp:
     bmp.write(symbol.render_bmp())
@@ -1338,9 +1182,7 @@ Code example:
 ```python
 import pyzint
 
-symbol = pyzint.Zint(
-    '[21]A12345678', pyzint.BARCODE_EANX_CC, primary='12345678+123'
-)
+symbol = pyzint.Barcode.EANX_CC('[21]A12345678', primary='12345678+123')
 
 with open('EANX_CC.bmp', "wb") as bmp:
     bmp.write(symbol.render_bmp())
@@ -1355,9 +1197,7 @@ Code example:
 ```python
 import pyzint
 
-symbol = pyzint.Zint(
-    '[21]A12345678', pyzint.BARCODE_RSS14_CC, primary='12345678'
-)
+symbol = pyzint.Barcode.RSS14_CC('[21]A12345678', primary='12345678')
 
 with open('RSS14_CC.bmp', "wb") as bmp:
     bmp.write(symbol.render_bmp())
@@ -1372,9 +1212,7 @@ Code example:
 ```python
 import pyzint
 
-symbol = pyzint.Zint(
-    '[21]A12345678', pyzint.BARCODE_RSS_LTD_CC, primary='12345678'
-)
+symbol = pyzint.Barcode.RSS_LTD_CC('[21]A12345678', primary='12345678')
 
 with open('RSS_LTD_CC.bmp', "wb") as bmp:
     bmp.write(symbol.render_bmp())
@@ -1389,9 +1227,7 @@ Code example:
 ```python
 import pyzint
 
-symbol = pyzint.Zint(
-    '[21]A12345678', pyzint.BARCODE_UPCA_CC, primary='12345678'
-)
+symbol = pyzint.Barcode.UPCA_CC('[21]A12345678', primary='12345678')
 
 with open('UPCA_CC.bmp', "wb") as bmp:
     bmp.write(symbol.render_bmp())
@@ -1406,9 +1242,7 @@ Code example:
 ```python
 import pyzint
 
-symbol = pyzint.Zint(
-    '[21]A04252614', pyzint.BARCODE_UPCE_CC, primary='0425261'
-)
+symbol = pyzint.Barcode.UPCE_CC('[21]A04252614', primary='0425261')
 
 with open('UPCE_CC.bmp', "wb") as bmp:
     bmp.write(symbol.render_bmp())
@@ -1423,9 +1257,7 @@ Code example:
 ```python
 import pyzint
 
-symbol = pyzint.Zint(
-    '[21]A12345678', pyzint.BARCODE_RSS14STACK_CC, primary='12345678'
-)
+symbol = pyzint.Barcode.RSS14STACK_CC('[21]A12345678', primary='12345678')
 
 with open('RSS14STACK_CC.bmp', "wb") as bmp:
     bmp.write(symbol.render_bmp())
@@ -1440,9 +1272,7 @@ Code example:
 ```python
 import pyzint
 
-symbol = pyzint.Zint(
-    '[21]A12345678', pyzint.BARCODE_RSS14_OMNI_CC, primary='12345678'
-)
+symbol = pyzint.Barcode.RSS14_OMNI_CC('[21]A12345678', primary='12345678')
 
 with open('RSS14_OMNI_CC.bmp', "wb") as bmp:
     bmp.write(symbol.render_bmp())
@@ -1457,9 +1287,7 @@ Code example:
 ```python
 import pyzint
 
-symbol = pyzint.Zint(
-    '[21]A12345678901234', pyzint.BARCODE_RSS_EXPSTACK_CC, primary='[01]12345678901234'
-)
+symbol = pyzint.Barcode.RSS_EXPSTACK_CC('[21]A12345678901234', primary='[01]12345678901234')
 
 with open('RSS_EXPSTACK_CC.bmp', "wb") as bmp:
     bmp.write(symbol.render_bmp())
@@ -1474,9 +1302,7 @@ Code example:
 ```python
 import pyzint
 
-symbol = pyzint.Zint(
-    '123', pyzint.BARCODE_CHANNEL
-)
+symbol = pyzint.Barcode.CHANNEL('123')
 
 with open('CHANNEL.bmp', "wb") as bmp:
     bmp.write(symbol.render_bmp())
@@ -1491,9 +1317,7 @@ Code example:
 ```python
 import pyzint
 
-symbol = pyzint.Zint(
-    '[21]A12345678', pyzint.BARCODE_CODEONE, primary='12345678'
-)
+symbol = pyzint.Barcode.CODEONE('[21]A12345678', primary='12345678')
 
 with open('CODEONE.bmp', "wb") as bmp:
     bmp.write(symbol.render_bmp())
@@ -1508,9 +1332,7 @@ Code example:
 ```python
 import pyzint
 
-symbol = pyzint.Zint(
-    '[21]A12345678', pyzint.BARCODE_GRIDMATRIX, primary='12345678'
-)
+symbol = pyzint.Barcode.GRIDMATRIX('[21]A12345678', primary='12345678')
 
 with open('GRIDMATRIX.bmp', "wb") as bmp:
     bmp.write(symbol.render_bmp())
@@ -1525,9 +1347,7 @@ Code example:
 ```python
 import pyzint
 
-symbol = pyzint.Zint(
-    '[21]A12345678', pyzint.BARCODE_UPNQR, primary='12345678'
-)
+symbol = pyzint.Barcode.UPNQR('[21]A12345678', primary='12345678')
 
 with open('UPNQR.bmp', "wb") as bmp:
     bmp.write(symbol.render_bmp())
@@ -1542,9 +1362,7 @@ Code example:
 ```python
 import pyzint
 
-symbol = pyzint.Zint(
-    '[21]A12345678', pyzint.BARCODE_RMQR, primary='12345678'
-)
+symbol = pyzint.Barcode.RMQR('[21]A12345678', primary='12345678')
 
 with open('RMQR.bmp', "wb") as bmp:
     bmp.write(symbol.render_bmp())
