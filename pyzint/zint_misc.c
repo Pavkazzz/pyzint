@@ -1,3 +1,6 @@
+#include <string.h>
+
+
 void make_html_friendly(unsigned char * string, char * html_version) {
     /* Converts text to use HTML entity codes */
 
@@ -6,7 +9,7 @@ void make_html_friendly(unsigned char * string, char * html_version) {
     html_pos = 0;
     html_version[html_pos] = '\0';
 
-    for (i = 0; i < (int) ustrlen(string); i++) {
+    for (i = 0; i < (int) strlen(string); i++) {
         switch(string[i]) {
             case '>':
                 strcat(html_version, "&gt;");

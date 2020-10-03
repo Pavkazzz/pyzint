@@ -340,10 +340,7 @@ static int set_human_symbology(CZINT* self) {
             return 0;
         case (BARCODE_UPNQR):
             self->human_symbology = "upnqr";
-            return 0;
-        case (BARCODE_ULTRA):
-            self->human_symbology = "ultra";
-            return 0;
+            break;
         case (BARCODE_RMQR):
             self->human_symbology = "rmqr";
             return 0;
@@ -432,6 +429,20 @@ CZINT_init(CZINT *self, PyObject *args, PyObject *kwds)
     }
 
     if (set_human_symbology(self) == -1) return -1;
+
+    if (self->primary.len >= 128) {
+        PyErr_Format(
+            PyExc_ValueError,
+            "primary must be short then 128 bytes, got %d",
+            self->primary_len
+        );
+        return -1;
+    }
+
+    if (primary != NULL && self->primary_len > 0) {
+        self->primary = PyMem_Calloc(sizeof(char), self->primary_len + 1);
+        memcpy(self->primary, primary, self->primary_len);
+    }
 
     if (PyBytes_Check(self->data)) {
         if (PyBytes_AsStringAndSize(self->data, &self->buffer, &self->length) == -1) {
@@ -1099,7 +1110,6 @@ PyMODINIT_FUNC PyInit_zint(void) {
     PyModule_AddIntConstant(m, "BARCODE_CODEONE", BARCODE_CODEONE);
     PyModule_AddIntConstant(m, "BARCODE_GRIDMATRIX", BARCODE_GRIDMATRIX);
     PyModule_AddIntConstant(m, "BARCODE_UPNQR", BARCODE_UPNQR);
-    PyModule_AddIntConstant(m, "BARCODE_ULTRA", BARCODE_ULTRA);
     PyModule_AddIntConstant(m, "BARCODE_RMQR", BARCODE_RMQR);
     return m;
 }
