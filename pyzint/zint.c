@@ -618,11 +618,9 @@ static PyObject* CZINT_render_bmp(
     }
     memset(&bitmap, 0, height * (width + 8));
 
-    {
-        unsigned int length = height * width;
-        for(unsigned int i=0; i<length; i++) {
-            bitmap[i/width][i%width] = symbol->bitmap[i * 3];
-        }
+    unsigned int length = height * width;
+    for(int i=0; i<length; i++) {
+        bitmap[i/width][i%width] = symbol->bitmap[i * 3];
     }
 
     const int bmp_1bit_with_bytes = (width / 8 + (width % 8 == 0?0:1));
@@ -665,14 +663,12 @@ static PyObject* CZINT_render_bmp(
 
         char *pixels = &bmp[header_size];
 
-        {
-            for(int y=height-1; y >= 0; y--) {
-                for(int x=0; x < width; x+=8) {
-                    pixels[offset] = octet2char(&bitmap[y][x]);
-                    offset++;
-                }
-                offset += padding;
+        for(int y=height-1; y >= 0; y--) {
+            for(int x=0; x < width; x+=8) {
+                pixels[offset] = octet2char(&bitmap[y][x]);
+                offset++;
             }
+            offset += padding;
         }
     }
 
