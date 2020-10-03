@@ -85,7 +85,8 @@ def test_height():
 
 def test_option_1():
     z = zint.Zint("Barcode", zint.BARCODE_QRCODE)
-    assert z.option_1 == 0
+    # See https://github.com/Pavkazzz/zint/blob/master/backend/library.c#L62
+    assert z.option_1 == -1
 
 
 def test_option_2():
