@@ -340,7 +340,7 @@ static int set_human_symbology(CZINT* self) {
             return 0;
         case (BARCODE_UPNQR):
             self->human_symbology = "upnqr";
-            break;
+            return 0;
         case (BARCODE_RMQR):
             self->human_symbology = "rmqr";
             return 0;
