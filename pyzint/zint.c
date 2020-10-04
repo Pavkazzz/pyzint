@@ -51,15 +51,9 @@ CZINT_dealloc(CZINT *self) {
 
 static inline uint8_t octet2char(const unsigned char* src, int shift) {
     unsigned char result = 0;
-    result |= (src[0]?1:0) << 7;
-    result |= (src[1 * shift]?1:0) << 6;
-    result |= (src[2 * shift]?1:0) << 5;
-    result |= (src[3 * shift]?1:0) << 4;
-    result |= (src[4 * shift]?1:0) << 3;
-    result |= (src[5 * shift]?1:0) << 2;
-    result |= (src[6 * shift]?1:0) << 1;
-    result |= (src[7 * shift]?1:0);
-
+    for (int i = 0; i < 8; i++) {
+        result |= (src[i * shift]?1:0) << (7 - i);
+    }
     return result;
 }
 
