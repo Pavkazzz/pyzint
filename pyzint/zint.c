@@ -7,7 +7,7 @@
 #include <Python.h>
 #include <structmember.h>
 
-extern void make_html_friendly(unsigned char * string, char * html_version);
+extern void make_html_friendly2(const unsigned char * string, char * html_version);
 
 typedef struct {
     PyObject_HEAD
@@ -49,16 +49,16 @@ CZINT_dealloc(CZINT *self) {
     Py_TYPE(self)->tp_free((PyObject *) self);
 }
 
-uint8_t octet2char(const unsigned char* src) {
+static inline uint8_t octet2char(const unsigned char* src, int shift) {
     unsigned char result = 0;
     result |= (src[0]?1:0) << 7;
-    result |= (src[1]?1:0) << 6;
-    result |= (src[2]?1:0) << 5;
-    result |= (src[3]?1:0) << 4;
-    result |= (src[4]?1:0) << 3;
-    result |= (src[5]?1:0) << 2;
-    result |= (src[6]?1:0) << 1;
-    result |= (src[7]?1:0);
+    result |= (src[1 * shift]?1:0) << 6;
+    result |= (src[2 * shift]?1:0) << 5;
+    result |= (src[3 * shift]?1:0) << 4;
+    result |= (src[4 * shift]?1:0) << 3;
+    result |= (src[5 * shift]?1:0) << 2;
+    result |= (src[6 * shift]?1:0) << 1;
+    result |= (src[7 * shift]?1:0);
 
     return result;
 }
@@ -612,17 +612,6 @@ static PyObject* CZINT_render_bmp(
     unsigned int width = symbol->bitmap_width;
     unsigned int height = symbol->bitmap_height;
 
-    unsigned char bitmap[height][width + 8];
-    if (bitmap == NULL) {
-        return NULL;
-    }
-    memset(&bitmap, 0, height * (width + 8));
-
-    unsigned int length = height * width;
-    for(int i=0; i<length; i++) {
-        bitmap[i/width][i%width] = symbol->bitmap[i * 3];
-    }
-
     const int bmp_1bit_with_bytes = (width / 8 + (width % 8 == 0?0:1));
 
     const int padding = (bmp_1bit_with_bytes * 3) % 4;
@@ -665,7 +654,9 @@ static PyObject* CZINT_render_bmp(
 
         for(int y=height-1; y >= 0; y--) {
             for(int x=0; x < width; x+=8) {
-                pixels[offset] = octet2char(&bitmap[y][x]);
+                pixels[offset] = octet2char(
+                    &symbol->bitmap[((y * width) + x) * 3], 3
+                );
                 offset++;
             }
             offset += padding;
@@ -784,7 +775,7 @@ static PyObject* CZINT_render_svg(
                 }
             }
         }
-        char html_string[html_len];
+        char *html_string = calloc(sizeof(char), html_len);
 
         fsvg = calloc(max_len, sizeof(char *));
 
@@ -835,7 +826,7 @@ static PyObject* CZINT_render_svg(
         while (string) {
             len_fsvg += snprintf(&fsvg[len_fsvg], max_len-len_fsvg, "<text x=\"%.2f\" y=\"%.2f\" text-anchor=\"middle\" ", string->x, string->y);
             len_fsvg += snprintf(&fsvg[len_fsvg], max_len-len_fsvg, "font-family=\"Helvetica\" font-size=\"%.1f\" fill=\"#%s\">", string->fsize, symbol->fgcolour);
-            make_html_friendly(string->text, html_string);
+            make_html_friendly2(string->text, html_string);
             len_fsvg += snprintf(&fsvg[len_fsvg], max_len-len_fsvg, " %s ", html_string);
             len_fsvg += snprintf(&fsvg[len_fsvg], max_len-len_fsvg, "</text>");
             string = string->next;
@@ -846,6 +837,8 @@ static PyObject* CZINT_render_svg(
 
         ZBarcode_Clear(symbol);
         ZBarcode_Delete(symbol);
+
+        free(html_string);
     }
 
     Py_END_ALLOW_THREADS
