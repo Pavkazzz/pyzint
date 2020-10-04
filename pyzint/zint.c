@@ -7,7 +7,7 @@
 #include <Python.h>
 #include <structmember.h>
 
-extern void make_html_friendly2(const unsigned char * string, char * html_version);
+extern void make_html_friendly(const unsigned char * string, char * html_version);
 
 typedef struct {
     PyObject_HEAD
@@ -820,7 +820,7 @@ static PyObject* CZINT_render_svg(
         while (string) {
             len_fsvg += snprintf(&fsvg[len_fsvg], max_len-len_fsvg, "<text x=\"%.2f\" y=\"%.2f\" text-anchor=\"middle\" ", string->x, string->y);
             len_fsvg += snprintf(&fsvg[len_fsvg], max_len-len_fsvg, "font-family=\"Helvetica\" font-size=\"%.1f\" fill=\"#%s\">", string->fsize, symbol->fgcolour);
-            make_html_friendly2(string->text, html_string);
+            make_html_friendly(string->text, html_string);
             len_fsvg += snprintf(&fsvg[len_fsvg], max_len-len_fsvg, " %s ", html_string);
             len_fsvg += snprintf(&fsvg[len_fsvg], max_len-len_fsvg, "</text>");
             string = string->next;

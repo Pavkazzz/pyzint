@@ -1,7 +1,7 @@
 #include <string.h>
 
 
-void make_html_friendly2(const unsigned char * string, char * html_version) {
+void make_html_friendly(const unsigned char * string, char * html_version) {
     /* Converts text to use HTML entity codes */
 
     int i, html_pos;
