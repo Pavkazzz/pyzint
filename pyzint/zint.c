@@ -416,7 +416,7 @@ CZINT_init(CZINT *self, PyObject *args, PyObject *kwds)
 
 
     if (self->scale > CZINT_SCALE_MAX) {
-        PyErr_SetFormat(
+        PyErr_Format(
             PyExc_ValueError,
             "scale must be lesser then %s",
             CZINT_SCALE_MAX
