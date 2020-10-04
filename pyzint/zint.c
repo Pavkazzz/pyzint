@@ -45,7 +45,6 @@ static void
 CZINT_dealloc(CZINT *self) {
     Py_CLEAR(self->data);
     self->buffer = NULL;
-
     Py_TYPE(self)->tp_free((PyObject *) self);
 }
 
@@ -406,21 +405,25 @@ CZINT_init(CZINT *self, PyObject *args, PyObject *kwds)
             &self->dot_size
     )) return -1;
 
+    Py_INCREF(self->data);
+
     if (self->scale <= CZINT_SCALE_MIN) {
-        PyErr_SetString(
+        PyErr_Format(
             PyExc_ValueError,
-            "scale must be greater then zero"
+            "scale must be greater then %d got %d",
+            CZINT_SCALE_MIN, self->scale
         );
-        return NULL;
+        return -1;
     }
 
 
     if (self->scale > CZINT_SCALE_MAX) {
-        PyErr_SetString(
+        PyErr_Format(
             PyExc_ValueError,
-            "scale must be lesser then ten"
+            "scale must be lesser then %d got %d",
+            CZINT_SCALE_MAX, self->scale
         );
-        return NULL;
+        return -1;
     }
 
     if (set_human_symbology(self) == -1) return -1;
@@ -458,7 +461,6 @@ CZINT_init(CZINT *self, PyObject *args, PyObject *kwds)
         );
     }
 
-    Py_INCREF(self->data);
     return 0;
 }
 
@@ -1005,6 +1007,7 @@ PyMODINIT_FUNC PyInit_zint(void) {
         return NULL;
     }
 
+    PyModule_AddIntConstant(m, "SCALE_MAX", CZINT_SCALE_MAX);
     PyModule_AddIntConstant(m, "BARCODE_CODE11", BARCODE_CODE11);
     PyModule_AddIntConstant(m, "BARCODE_C25MATRIX", BARCODE_C25MATRIX);
     PyModule_AddIntConstant(m, "BARCODE_C25INTER", BARCODE_C25INTER);

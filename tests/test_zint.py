@@ -4,7 +4,7 @@ from io import BytesIO
 import pytest
 from PIL import Image
 
-from pyzint.zint import BARCODE_RSS_EXP, Zint
+from pyzint.zint import BARCODE_RSS_EXP, Zint, SCALE_MAX
 
 
 def test_params_bytes():
@@ -74,3 +74,11 @@ def test_svg_rss_exp_cyzint():
     xml = ET.fromstring(barcode.decode())
     assert int(xml.get("width")) == 366
     assert int(xml.get("height")) == 86
+
+
+def test_scale():
+    with pytest.raises(ValueError):
+        Zint("[255]11111111111222", BARCODE_RSS_EXP, scale=SCALE_MAX + 1)
+
+    with pytest.raises(ValueError):
+        Zint("[255]11111111111222", BARCODE_RSS_EXP, scale=-1)
