@@ -3,7 +3,7 @@ from setuptools import Extension, setup
 
 setup(
     name="pyzint",
-    version="0.1.2",
+    version="0.1.3",
     description="Python ZINT bindings",
     long_description=open("README.rst").read(),
     packages=["pyzint"],
