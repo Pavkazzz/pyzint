@@ -45,7 +45,6 @@ static void
 CZINT_dealloc(CZINT *self) {
     Py_CLEAR(self->data);
     self->buffer = NULL;
-
     Py_TYPE(self)->tp_free((PyObject *) self);
 }
 
@@ -406,6 +405,8 @@ CZINT_init(CZINT *self, PyObject *args, PyObject *kwds)
             &self->dot_size
     )) return -1;
 
+    Py_INCREF(self->data);
+
     if (self->scale <= CZINT_SCALE_MIN) {
         PyErr_Format(
             PyExc_ValueError,
@@ -460,7 +461,6 @@ CZINT_init(CZINT *self, PyObject *args, PyObject *kwds)
         );
     }
 
-    Py_INCREF(self->data);
     return 0;
 }
 
