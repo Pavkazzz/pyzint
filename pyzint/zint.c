@@ -407,9 +407,10 @@ CZINT_init(CZINT *self, PyObject *args, PyObject *kwds)
     )) return -1;
 
     if (self->scale <= CZINT_SCALE_MIN) {
-        PyErr_SetString(
+        PyErr_Format(
             PyExc_ValueError,
-            "scale must be greater then zero"
+            "scale must be greater then zero got %s",
+            self->scale
         );
         return -1;
     }
@@ -418,8 +419,8 @@ CZINT_init(CZINT *self, PyObject *args, PyObject *kwds)
     if (self->scale > CZINT_SCALE_MAX) {
         PyErr_Format(
             PyExc_ValueError,
-            "scale must be lesser then %s",
-            CZINT_SCALE_MAX
+            "scale must be lesser then %s got %s",
+            CZINT_SCALE_MAX, self->scale
         );
         return -1;
     }
@@ -1006,6 +1007,7 @@ PyMODINIT_FUNC PyInit_zint(void) {
         return NULL;
     }
 
+    PyModule_AddIntConstant(m, "SCALE_MAX", CZINT_SCALE_MAX);
     PyModule_AddIntConstant(m, "BARCODE_CODE11", BARCODE_CODE11);
     PyModule_AddIntConstant(m, "BARCODE_C25MATRIX", BARCODE_C25MATRIX);
     PyModule_AddIntConstant(m, "BARCODE_C25INTER", BARCODE_C25INTER);
