@@ -50,4 +50,4 @@ Generate svg image
 
 See `more examples here`_
 
-.. _more examples here: examples/README.md
+.. _more examples here: https://github.com/Pavkazzz/pyzint/blob/master/examples/README.md
