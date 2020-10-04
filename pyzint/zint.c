@@ -411,16 +411,17 @@ CZINT_init(CZINT *self, PyObject *args, PyObject *kwds)
             PyExc_ValueError,
             "scale must be greater then zero"
         );
-        return NULL;
+        return -1;
     }
 
 
     if (self->scale > CZINT_SCALE_MAX) {
-        PyErr_SetString(
+        PyErr_SetFormat(
             PyExc_ValueError,
-            "scale must be lesser then ten"
+            "scale must be lesser then %s",
+            CZINT_SCALE_MAX
         );
-        return NULL;
+        return -1;
     }
 
     if (set_human_symbology(self) == -1) return -1;
