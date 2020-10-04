@@ -3,7 +3,7 @@ from setuptools import Extension, setup
 
 setup(
     name="pyzint",
-    version="0.1.1",
+    version="0.1.2",
     description="Python ZINT bindings",
     long_description=open("README.rst").read(),
     packages=["pyzint"],
@@ -62,7 +62,7 @@ setup(
                 "pyzint/src/zint/backend/dllversion.c",
                 "pyzint/src/zint/backend/raster.c",
             ],
-            extra_compile_args=["-g"],
+            extra_compile_args=["-g", "-std=c99"],
             include_dirs=["pyzint/src"],
             define_macros=[("NO_PNG", "1")],
         ),

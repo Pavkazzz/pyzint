@@ -341,9 +341,6 @@ static int set_human_symbology(CZINT* self) {
         case (BARCODE_UPNQR):
             self->human_symbology = "upnqr";
             return 0;
-        case (BARCODE_ULTRA):
-            self->human_symbology = "ultra";
-            return 0;
         case (BARCODE_RMQR):
             self->human_symbology = "rmqr";
             return 0;
@@ -378,7 +375,8 @@ CZINT_init(CZINT *self, PyObject *args, PyObject *kwds)
     };
 
     self->show_hrt = 1;
-    self->option_1 = 0;
+
+    self->option_1 = -1;
     self->option_2 = 0;
     self->option_3 = 0;
     self->whitespace_width = 0;
@@ -390,7 +388,7 @@ CZINT_init(CZINT *self, PyObject *args, PyObject *kwds)
     self->dot_size = CZINT_DEFAULT_DOT_SIZE;
 
     if (!PyArg_ParseTupleAndKeywords(
-            args, kwds, "Ob|iii$fbiBBBBs*s*f", kwlist,
+            args, kwds, "Ob|iii$fbiBBBBz*s*f", kwlist,
             &self->data,
             &self->symbology,
 
@@ -433,6 +431,15 @@ CZINT_init(CZINT *self, PyObject *args, PyObject *kwds)
 
     if (set_human_symbology(self) == -1) return -1;
 
+    if (self->primary.len >= 128) {
+        PyErr_Format(
+            PyExc_ValueError,
+            "primary must be shorten then 128 bytes, got %d",
+            self->primary.len
+        );
+        return -1;
+    }
+
     if (PyBytes_Check(self->data)) {
         if (PyBytes_AsStringAndSize(self->data, &self->buffer, &self->length) == -1) {
             self->input_mode = DATA_MODE;
@@ -447,6 +454,14 @@ CZINT_init(CZINT *self, PyObject *args, PyObject *kwds)
     } else {
         PyErr_SetNone(PyExc_ValueError);
         return -1;
+    }
+
+    if (self->length >= 128) {
+        PyErr_Format(
+            PyExc_ValueError,
+            "text must be shorten then 128 bytes, got %d",
+            self->length
+        );
     }
 
     Py_INCREF(self->data);
@@ -603,11 +618,9 @@ static PyObject* CZINT_render_bmp(
     }
     memset(&bitmap, 0, height * (width + 8));
 
-    {
-        unsigned int length = height * width;
-        for(unsigned int i=0; i<length; i++) {
-            bitmap[i/width][i%width] = symbol->bitmap[i * 3];
-        }
+    unsigned int length = height * width;
+    for(int i=0; i<length; i++) {
+        bitmap[i/width][i%width] = symbol->bitmap[i * 3];
     }
 
     const int bmp_1bit_with_bytes = (width / 8 + (width % 8 == 0?0:1));
@@ -650,14 +663,12 @@ static PyObject* CZINT_render_bmp(
 
         char *pixels = &bmp[header_size];
 
-        {
-            for(int y=height-1; y >= 0; y--) {
-                for(int x=0; x < width; x+=8) {
-                    pixels[offset] = octet2char(&bitmap[y][x]);
-                    offset++;
-                }
-                offset += padding;
+        for(int y=height-1; y >= 0; y--) {
+            for(int x=0; x < width; x+=8) {
+                pixels[offset] = octet2char(&bitmap[y][x]);
+                offset++;
             }
+            offset += padding;
         }
     }
 
@@ -1099,7 +1110,6 @@ PyMODINIT_FUNC PyInit_zint(void) {
     PyModule_AddIntConstant(m, "BARCODE_CODEONE", BARCODE_CODEONE);
     PyModule_AddIntConstant(m, "BARCODE_GRIDMATRIX", BARCODE_GRIDMATRIX);
     PyModule_AddIntConstant(m, "BARCODE_UPNQR", BARCODE_UPNQR);
-    PyModule_AddIntConstant(m, "BARCODE_ULTRA", BARCODE_ULTRA);
     PyModule_AddIntConstant(m, "BARCODE_RMQR", BARCODE_RMQR);
     return m;
 }

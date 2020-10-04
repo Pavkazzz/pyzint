@@ -46,3 +46,8 @@ Generate svg image
 
    z.render_bmp()
 
+
+
+See `more examples here`_
+
+.. _more examples here: examples/README.md
