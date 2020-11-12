@@ -64,7 +64,7 @@ def test_bmp_rss_exp_cyzint():
         img = Image.open(fp)
 
         assert img.verify() is None
-        assert img.height == 86
+        assert img.height == 84
         assert img.width == 366
 
 
@@ -73,7 +73,7 @@ def test_svg_rss_exp_cyzint():
     barcode = z.render_svg()
     xml = ET.fromstring(barcode.decode())
     assert int(xml.get("width")) == 366
-    assert int(xml.get("height")) == 86
+    assert int(xml.get("height")) == 87
 
 
 def test_scale():
