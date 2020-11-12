@@ -1,13 +1,12 @@
 from setuptools import Extension, setup
 
-
 setup(
     name="pyzint",
-    version="0.1.6",
+    version="0.1.7",
     description="Python ZINT bindings",
     long_description=open("README.rst").read(),
     packages=["pyzint"],
-    package_data={"pyzint": ["zint.pyi"],},
+    package_data={"pyzint": ["zint.pyi"], },
     ext_modules=[
         Extension(
             "pyzint.zint",
@@ -57,6 +56,7 @@ setup(
                 "pyzint/src/zint/backend/maxicode.c",
                 "pyzint/src/zint/backend/telepen.c",
                 "pyzint/src/zint/backend/png.c",
+                "pyzint/src/zint/backend/output.c",
                 "pyzint/src/zint/backend/svg.c",
                 "pyzint/src/zint/backend/gridmtx.c",
                 "pyzint/src/zint/backend/dllversion.c",
@@ -67,7 +67,7 @@ setup(
             define_macros=[("NO_PNG", "1")],
         ),
     ],
-    project_urls={"Source": "https://github.com/Pavkazzz/pyzint",},
+    project_urls={"Source": "https://github.com/Pavkazzz/pyzint"},
     classifiers=[
         "License :: OSI Approved :: Apache Software License",
         "Topic :: Internet",
@@ -83,6 +83,7 @@ setup(
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: Implementation :: CPython",
     ],
 )
