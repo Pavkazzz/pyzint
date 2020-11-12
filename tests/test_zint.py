@@ -64,7 +64,7 @@ def test_bmp_rss_exp_cyzint():
         img = Image.open(fp)
 
         assert img.verify() is None
-        assert img.height == 86
+        assert img.height == 84
         assert img.width == 366
 
 
