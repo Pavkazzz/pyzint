@@ -32,6 +32,22 @@ typedef struct {
     Py_ssize_t length;
 } CZINT;
 
+static void PyErr_CodeFormat(PyObject * err, int code, char const * format, ...) {
+    va_list vargs;
+    PyObject *s;
+    PyObject *v;
+
+    va_start(vargs, format);
+    s = PyUnicode_FromFormatV(format, vargs);
+    va_end(vargs);
+
+    v = Py_BuildValue("(iO)", code, s);
+    if (v != NULL) {
+        PyErr_SetObject(err, v);
+        Py_DECREF(v);
+    }
+    Py_XDECREF(s);
+}
 
 static PyObject *
 CZINT_new(PyTypeObject *type, PyObject *args, PyObject *kwds) {
@@ -453,14 +469,6 @@ CZINT_init(CZINT *self, PyObject *args, PyObject *kwds)
         return -1;
     }
 
-    if (self->length >= 128) {
-        PyErr_Format(
-            PyExc_ValueError,
-            "text must be shorten then 128 bytes, got %d",
-            self->length
-        );
-    }
-
     return 0;
 }
 
@@ -667,8 +675,9 @@ static PyObject* CZINT_render_bmp(
     Py_END_ALLOW_THREADS
 
     if (res > 0) {
-        PyErr_Format(
+        PyErr_CodeFormat(
             PyExc_RuntimeError,
+            res,
             "Error while rendering: %s",
             symbol->errtxt
         );
@@ -840,8 +849,9 @@ static PyObject* CZINT_render_svg(
     Py_END_ALLOW_THREADS
 
     if (res > 0) {
-        PyErr_Format(
+        PyErr_CodeFormat(
             PyExc_RuntimeError,
+            res,
             "Error while rendering: %s",
             symbol->errtxt
         );
