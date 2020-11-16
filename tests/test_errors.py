@@ -37,7 +37,7 @@ def test_bmp_errors(type, value, callback_ext):
 
 @types
 def test_png_too_long(callback_ext):
-    z = Zint('a' * 100_000, BARCODE_QRCODE)
+    z = Zint('a' * 100000, BARCODE_QRCODE)
     with pytest.raises(RuntimeError) as e:
         callback_ext(z)
     code, text = e.value.args
