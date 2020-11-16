@@ -4,11 +4,11 @@ from pyzint.zint import (
     BARCODE_EAN14,
     BARCODE_ISBNX,
     BARCODE_ITF14,
+    BARCODE_QRCODE,
     BARCODE_UPCA,
     BARCODE_UPCE,
     Zint,
 )
-
 
 bad_barcodes = pytest.mark.parametrize(
     "type,value",
@@ -21,16 +21,24 @@ bad_barcodes = pytest.mark.parametrize(
     ],
 )
 
+types = pytest.mark.parametrize("callback_ext", [
+    Zint.render_svg,
+    Zint.render_bmp,
+])
 
+
+@types
 @bad_barcodes
-def test_bmp_errors(type, value):
+def test_bmp_errors(type, value, callback_ext):
     z = Zint(value, type)
     with pytest.raises(RuntimeError):
-        z.render_bmp()
+        callback_ext(z)
 
 
-@bad_barcodes
-def test_svg_errors(type, value):
-    z = Zint(value, type)
-    with pytest.raises(RuntimeError):
-        z.render_svg()
+@types
+def test_png_too_long(callback_ext):
+    z = Zint('a' * 100_000, BARCODE_QRCODE)
+    with pytest.raises(RuntimeError) as e:
+        callback_ext(z)
+    code, text = e.value.args
+    assert code == 5
