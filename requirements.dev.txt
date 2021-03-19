@@ -1,6 +1,6 @@
 pytest~=5.4.1
 pylama
-Pillow==7.1.0
+Pillow==8.1.1
 wheel
 zbar-py~=1.0.4
 scikit-image
