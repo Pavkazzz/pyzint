@@ -35,8 +35,8 @@ jobs:
         pylama pyzint tests
     - name: Install locale
       run: |
-        locale-gen ru_RU
-        locale-gen ru_RU.UTF-8
+        sudo locale-gen ru_RU
+        sudo locale-gen ru_RU.UTF-8
     - name: Test with pytest
       run: |
         pytest
