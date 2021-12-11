@@ -4,6 +4,8 @@
 #include "src/zint/backend/gb18030.h"
 
 #define PY_SSIZE_T_CLEAN
+#define PYZINT_FLOAT_FMT_ALLOC 50
+
 #include <Python.h>
 #include <structmember.h>
 
@@ -807,10 +809,10 @@ static PyObject* CZINT_render_svg(
         len_fsvg += snprintf(&fsvg[len_fsvg], max_len, "<rect x=\"0\" y=\"0\" width=\"%d\" height=\"%d\" fill=\"#%s\" />\n", (int) ceil(symbol->vector->width), (int) ceil(symbol->vector->height), symbol->bgcolour);
         rect = symbol->vector->rectangles;
         while (rect) {
-            char buff_x[50] = {0};
-            char buff_y[50] = {0};
-            char buff_width[50] = {0};
-            char buff_height[50] = {0};
+            char buff_x[PYZINT_FLOAT_FMT_ALLOC] = {0};
+            char buff_y[PYZINT_FLOAT_FMT_ALLOC] = {0};
+            char buff_width[PYZINT_FLOAT_FMT_ALLOC] = {0};
+            char buff_height[PYZINT_FLOAT_FMT_ALLOC] = {0};
 
             formatFloat(rect->x, 2, &buff_x);
             formatFloat(rect->y, 2, &buff_y);
