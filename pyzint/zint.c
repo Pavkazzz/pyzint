@@ -807,7 +807,17 @@ static PyObject* CZINT_render_svg(
         len_fsvg += snprintf(&fsvg[len_fsvg], max_len, "<rect x=\"0\" y=\"0\" width=\"%d\" height=\"%d\" fill=\"#%s\" />\n", (int) ceil(symbol->vector->width), (int) ceil(symbol->vector->height), symbol->bgcolour);
         rect = symbol->vector->rectangles;
         while (rect) {
-            len_fsvg += snprintf(&fsvg[len_fsvg], max_len-len_fsvg, "<rect x=\"%s\" y=\"%s\" width=\"%s\" height=\"%s\" />\n", formatFloat(rect->x, 2), formatFloat(rect->y, 2), formatFloat(rect->width, 2), formatFloat(rect->height, 2));
+            char buff_x[50] = {0};
+            char buff_y[50] = {0};
+            char buff_width[50] = {0};
+            char buff_height[50] = {0};
+
+            formatFloat(rect->x, 2, &buff_x)
+            formatFloat(rect->y, 2, &buff_y)
+            formatFloat(rect->width, 2, &buff_width)
+            formatFloat(rect->height, 2, &buff_height)
+
+            len_fsvg += snprintf(&fsvg[len_fsvg], max_len-len_fsvg, "<rect x=\"%s\" y=\"%s\" width=\"%s\" height=\"%s\" />\n", buff_x, buff_y, buff_width, buff_height);
             rect = rect->next;
         }
 
