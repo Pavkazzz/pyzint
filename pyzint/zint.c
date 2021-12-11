@@ -812,10 +812,10 @@ static PyObject* CZINT_render_svg(
             char buff_width[50] = {0};
             char buff_height[50] = {0};
 
-            formatFloat(rect->x, 2, &buff_x)
-            formatFloat(rect->y, 2, &buff_y)
-            formatFloat(rect->width, 2, &buff_width)
-            formatFloat(rect->height, 2, &buff_height)
+            formatFloat(rect->x, 2, &buff_x);
+            formatFloat(rect->y, 2, &buff_y);
+            formatFloat(rect->width, 2, &buff_width);
+            formatFloat(rect->height, 2, &buff_height);
 
             len_fsvg += snprintf(&fsvg[len_fsvg], max_len-len_fsvg, "<rect x=\"%s\" y=\"%s\" width=\"%s\" height=\"%s\" />\n", buff_x, buff_y, buff_width, buff_height);
             rect = rect->next;
