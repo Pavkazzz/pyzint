@@ -691,6 +691,19 @@ static PyObject* CZINT_render_bmp(
     return result;
 }
 
+
+void formatFloat(double num, int precision, char* res) {
+  long precision_mul = 1;
+  double integral;
+  double fractional;
+
+  for (int i = 0; i < precision; i++) precision_mul *= 10;
+  long intFrac = (long)(modf(num, &integral) * precision_mul);
+  long intIntegral = (long)integral;
+
+  sprintf(res, "%ld.%ld", intIntegral, intFrac);
+}
+
 PyDoc_STRVAR(CZINT_render_svg_docstring,
     "Render svg barcode.\n\n"
     "    Zint('data', BARCODE_QRCODE).render_svg(angle: int = 0, fgcolor: str = '#FFFFFF', bgcolor: str = '#000000') -> bytes"
@@ -794,7 +807,7 @@ static PyObject* CZINT_render_svg(
         len_fsvg += snprintf(&fsvg[len_fsvg], max_len, "<rect x=\"0\" y=\"0\" width=\"%d\" height=\"%d\" fill=\"#%s\" />\n", (int) ceil(symbol->vector->width), (int) ceil(symbol->vector->height), symbol->bgcolour);
         rect = symbol->vector->rectangles;
         while (rect) {
-            len_fsvg += snprintf(&fsvg[len_fsvg], max_len-len_fsvg, "<rect x=\"%.2f\" y=\"%.2f\" width=\"%.2f\" height=\"%.2f\" />\n", rect->x, rect->y, rect->width, rect->height);
+            len_fsvg += snprintf(&fsvg[len_fsvg], max_len-len_fsvg, "<rect x=\"%s\" y=\"%s\" width=\"%s\" height=\"%s\" />\n", formatFloat(rect->x, 2), formatFloat(rect->y, 2), formatFloat(rect->width, 2), formatFloat(rect->height, 2));
             rect = rect->next;
         }
 
