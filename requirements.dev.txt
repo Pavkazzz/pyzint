@@ -1,7 +1,7 @@
-numpy==1.18.5
+numpy
 Pillow==7.1.0
 pylama
 pytest~=5.4.1
-scikit-image==0.15.0
+scikit-image
 wheel
 zbar-py~=1.0.4
