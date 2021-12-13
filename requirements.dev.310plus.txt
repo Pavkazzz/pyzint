@@ -1,0 +1,7 @@
+numpy
+Pillow~=8.4.0
+pylama
+pytest~=6.2.4
+scikit-image==0.19.0
+wheel
+zbar-py~=1.0.4
