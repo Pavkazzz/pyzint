@@ -1,6 +1,7 @@
-pytest~=5.4.1
-pylama
+numpy
 Pillow==7.1.0
+pylama
+pytest~=5.4.1
+scikit-image
 wheel
 zbar-py~=1.0.4
-scikit-image
