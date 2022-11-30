@@ -2,7 +2,7 @@ from setuptools import Extension, setup
 
 setup(
     name="pyzint",
-    version="0.1.9",
+    version="0.1.10",
     description="Python ZINT bindings",
     long_description=open("README.rst").read(),
     packages=["pyzint"],
@@ -79,11 +79,11 @@ setup(
         "Operating System :: POSIX",
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.5",
-        "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
         "Programming Language :: Python :: Implementation :: CPython",
     ],
 )
